@@ -1,0 +1,52 @@
+{
+  "verified_at": "2026-11-09T07:25:00Z",
+  "spec_kit_version": "1.0.12",
+  "graphify_version": "0.3.10",
+  "superpowers_version": "6.4.2",
+  "codex_cli_version": "0.157.1",
+  "claude_code_version": "2.1.283",
+  "antigravity_version": "2.0.0",
+  "bridge_version": "1.3.0",
+  "platforms": [
+    {
+      "name": "Linux bash",
+      "script_flavor": "sh",
+      "status": "passed",
+      "evidence": "tests/run-all.sh"
+    },
+    {
+      "name": "Windows PowerShell",
+      "script_flavor": "ps",
+      "status": "passed",
+      "evidence": "tests/test-release-powershell.ps1"
+    },
+    {
+      "name": "macOS bash",
+      "script_flavor": "sh",
+      "status": "passed",
+      "evidence": "tests/run-all.sh"
+    }
+  ],
+  "agents": [
+    {
+      "name": "Claude Code",
+      "version": "2.1.283",
+      "status": "verified"
+    },
+    {
+      "name": "Codex",
+      "version": "0.157.1",
+      "status": "verified"
+    },
+    {
+      "name": "Antigravity",
+      "version": "2.0.0",
+      "status": "verified"
+    },
+    {
+      "name": "Gemini CLI",
+      "version": "1.0.0",
+      "status": "verified"
+    }
+  ]
+}

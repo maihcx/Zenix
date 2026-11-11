@@ -1,0 +1,57 @@
+# =====================================================================
+# Graphify Ignore Rules: AI Knowledge & Meta-Tooling Exclusions
+# Generated and maintained by GSS-Bridge Protocol v1.2.1
+# =====================================================================
+
+# 1. Spec-Kit & Agent Governance Frameworks
+.specify/
+.agents/
+specs/
+.claude/
+.gemini/
+.cursor/
+.windsurf/
+.kilo/
+.devin/
+.codex/
+.copilot/
+.ai/
+
+# 2. Graphify Internal Engine & Artifacts
+graphify-out/
+raw/
+.graphify*
+
+# 3. Transpiled Bundles, Minified Workers & Build Artifacts
+node_modules/
+dist/
+build/
+bin/
+obj/
+out/
+target/
+.cache/
+*.min.js
+*.min.css
+*.worker.js
+*.worker-*.js
+*.bundle.js
+editorWorker*.js
+
+# 4. Embedded Web Runtime & Third-Party Assets
+src/Zenix/Monaco/
+src/Zenix/Monaco/**
+src/Zenix/Monaco/
+src/Zenix/Monaco/**
+Monaco/
+**/Monaco/**
+
+# 5. Project-Specific Scratch & Temporary Artifacts
+.archify/
+scratch/
+scripts/
+.vs/
+.vscode/
+*.log
+*.tmp
+Temp.txt

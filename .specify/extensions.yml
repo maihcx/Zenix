@@ -1,0 +1,71 @@
+﻿installed:
+- assess
+- bug
+- gss-bridge
+settings:
+  auto_execute_hooks: true
+hooks:
+  before_clarify:
+  - extension: gss-bridge
+    command: speckit.gss-bridge.guard
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.gss-bridge.guard?
+    description: Prevent Spec-Kit contract modifications while implementation is executing
+    condition: null
+  before_plan:
+  - extension: gss-bridge
+    command: speckit.gss-bridge.guard
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.gss-bridge.guard?
+    description: Prevent Spec-Kit contract modifications while implementation is executing
+    condition: null
+  before_tasks:
+  - extension: gss-bridge
+    command: speckit.gss-bridge.guard
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.gss-bridge.guard?
+    description: Prevent Spec-Kit contract modifications while implementation is executing
+    condition: null
+  before_implement:
+  - extension: gss-bridge
+    command: speckit.gss-bridge.guard
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.gss-bridge.guard?
+    description: Block unprincipled speckit.implement; route through GSS-Bridge execution
+      discipline
+    condition: null
+  after_tasks:
+  - extension: gss-bridge
+    command: speckit.gss-bridge.handoff
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.gss-bridge.handoff?
+    description: Create the GSS handoff state after Spec-Kit task generation
+    condition: null
+  before_bug_assess:
+  - extension: gss-bridge
+    command: speckit.gss-bridge.guard
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Execute speckit.gss-bridge.guard?
+    description: Guard bug assessment preconditions
+    condition: null
+  before_bug_fix:
+  - extension: gss-bridge
+    command: speckit.gss-bridge.guard
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.gss-bridge.guard?
+    description: Enforce assessment contract before bug fix
+    condition: null

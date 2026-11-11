@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GSS-Bridge Architecture & Governance Cockpit</title>
+<style>
+:root {
+  --bg: #090d16;
+  --card: #131b2e;
+  --card-border: #1e293b;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.15);
+  --green: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --purple: #a855f7;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+body { background-color: var(--bg); color: var(--text); padding: 24px; line-height: 1.5; }
+.container { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+header { display: flex; justify-content: space-between; align-items: center; border-b: 1px solid var(--card-border); padding-bottom: 20px; }
+.title-group h1 { font-size: 24px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.title-group p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+.badges { display: flex; gap: 10px; align-items: center; }
+.badge { padding: 6px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-ready { background: #064e3b; color: #34d399; border: 1px solid #059669; }
+.badge-executing { background: #1e3a8a; color: #60a5fa; border: 1px solid #2563eb; }
+.badge-complete { background: #064e3b; color: #6ee7b7; border: 1px solid #10b981; }
+.badge-blocked { background: #7f1d1d; color: #fca5a5; border: 1px solid #dc2626; }
+.badge-actor { background: #312e81; color: #c084fc; border: 1px solid #6366f1; }
+
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+.card-header { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+.card-val { font-size: 28px; font-weight: 700; color: var(--text); }
+.card-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.progress-bar-bg { background: #1e293b; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 10px; }
+.progress-bar-fill { background: var(--accent); height: 100%; transition: width 0.3s ease; }
+
+.section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 900px) { .section-grid { grid-template-columns: 1fr; } }
+
+h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.task-list { display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; padding-right: 6px; }
+.task-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: #0f172a; border-radius: 8px; border: 1px solid #1e293b; font-size: 14px; }
+.task-item.done { opacity: 0.6; text-decoration: line-through; }
+.badge-p { background: #4c1d95; color: #d8b4fe; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+th { background: #0f172a; padding: 10px 12px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; border-bottom: 1px solid var(--card-border); }
+td { padding: 10px 12px; border-bottom: 1px solid #1e293b; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+.risk-HIGH { color: var(--red); font-weight: 600; }
+.risk-MEDIUM { color: var(--amber); font-weight: 600; }
+.risk-LOW { color: var(--green); font-weight: 600; }
+
+.decision-feed { display: flex; flex-direction: column; gap: 12px; max-height: 380px; overflow-y: auto; }
+.decision-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 14px; }
+.decision-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.decision-title { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+.decision-body { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="title-group">
+      <h1>&#128737;&#65039; GSS-Bridge Cockpit</h1>
+      <p>Spec-Kit Governance &middot; Graphify Context &middot; Superpowers TDD Discipline</p>
+    </div>
+    <div class="badges">
+      <span class="badge badge-actor">Agent: unknown</span>
+      <span class="badge badge-unknown">UNKNOWN</span>
+    </div>
+  </header>
+
+  <div class="metrics-grid">
+    <div class="card">
+      <div class="card-header">Feature TDD Progress</div>
+      <div class="card-val">34 / 34 <span style="font-size:16px;font-weight:400;color:var(--text-muted)">(100%)</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 100%;"></div></div>
+      <div class="card-sub">11 parallel [P] task(s) scoped</div>
+    </div>
+    <div class="card">
+      <div class="card-header">Knowledge Graph Size</div>
+      <div class="card-val">4237 <span style="font-size:16px;font-weight:400;color:var(--text-muted)">nodes</span></div>
+      <div class="card-sub">9476 edges &middot; AST neighborhood indexed</div>
+    </div>
+    <div class="card">
+      <div class="card-header">Active Bugs / Incidents</div>
+      <div class="card-val">78 <span style="font-size:16px;font-weight:400;color:var(--text-muted)">triaged</span></div>
+      <div class="card-sub">72 resolved &middot; 2 active</div>
+    </div>
+    <div class="card">
+      <div class="card-header">Cross-Agent Decisions</div>
+      <div class="card-val">2 <span style="font-size:16px;font-weight:400;color:var(--text-muted)">records</span></div>
+      <div class="card-sub">Ledger: .specify/agent-decisions.jsonl</div>
+    </div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <h2>&#128203; Feature Tasks &amp; Execution Waves</h2>
+      <div class="task-list">
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T001 Convert `Zenix/Zenix.csproj` to target `net10.0-windows10.0.19041.0` with Windows App SDK 1.6+ and WinUI 3 dependencies</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T002 Remove legacy WPF references (`Wpf.Ui`, `Wpf.Ui.Tray`, `System.Windows.*`) from `Zenix/Zenix.csproj`</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T003 [P] Update `Zenix/app.manifest` for Windows App SDK unpackaged desktop execution compatibility</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T004 [P] Create `TabLifecycleState` enum in `Zenix/Models/TabLifecycleState.cs`</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T005 [P] Create `TabItemModel` in `Zenix/Models/TabItemModel.cs` with `Id`, `Title`, `IconGlyph`, `PageType`, `Content`, `IsClosable`, `IsSelected`, and `State`</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T006 [P] Create `WindowSession` model in `Zenix/Models/WindowSession.cs` tracking `WindowId`, `WindowInstance`, `Tabs`, and `SelectedTab`</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T007 [P] Create `TabDragPayload` model in `Zenix/Models/TabDragPayload.cs` holding `SourceWindowId`, `TabId`, `Tab`, and `SourceIndex`</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T008 [P] Define `ITabService` interface in `Zenix/Services/Contracts/ITabService.cs` per contract specification</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T009 [P] Define `IWindowManager` interface in `Zenix/Services/Contracts/IWindowManager.cs` per contract specification</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T010 Implement `TabService` in `Zenix/Services/TabService.cs` implementing tab collection management and selection</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T011 Implement `WindowManager` in `Zenix/Services/WindowManager.cs` tracking active `WindowSession`s and window lifecycle</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T012 Configure dependency injection services in `Zenix/App.xaml.cs` to register `IWindowManager` as Singleton and tab factories</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T013 [US1] Create `ShellViewModel` in `Zenix/ViewModels/Windows/ShellViewModel.cs` bound to `ITabService.Tabs` and `SelectedTab`</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T014 [US1] Create `ShellWindow.xaml` and `ShellWindow.xaml.cs` in `Zenix/Views/Windows/ShellWindow.xaml` with native `TabView` embedded into titlebar via `ExtendsContentIntoTitleBar=&quot;True&quot;`</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T015 [US1] Anchor the uncloseable `Home` tab at index 0 with `IsClosable=&quot;False&quot;` in `Zenix/ViewModels/Windows/ShellViewModel.cs`</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T016 [US1] Remove legacy `MainWindow.xaml` and `MainWindow.xaml.cs` containing `ui:NavigationView` in `Zenix/Views/Windows/`</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T017 [US1] Update `Zenix/Services/ApplicationHostService.cs` to instantiate and activate `ShellWindow` as the primary application window</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T018 [P] [US2] Migrate `HomePage.xaml` and `HomePage.xaml.cs` (formerly `DashboardPage`) in `Zenix/Views/Pages/HomePage.xaml` to WinUI 3 controls</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T019 [US2] Update `HomeViewModel.cs` in `Zenix/ViewModels/Pages/HomeViewModel.cs` to dispatch tab opening messages for &quot;Cơ sở dữ liệu&quot; and &quot;Cài Đặt&quot;</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T020 [P] [US2] Migrate `SettingsPage.xaml` and `SettingsPage.xaml.cs` in `Zenix/Views/Pages/SettingsPage.xaml` to WinUI 3 XAML controls</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T021 [P] [US2] Migrate `DatabasePage.xaml` and `DatabasePage.xaml.cs` in `Zenix/Views/Pages/DatabasePage.xaml` to WinUI 3 XAML controls</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T022 [US2] Implement dynamic tab opening in `Zenix/Services/TabService.cs` to instantiate pages and add closable tabs (`IsClosable=&quot;True&quot;`)</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T023 [US2] Implement `TabCloseRequested` event handler in `Zenix/Views/Windows/ShellWindow.xaml.cs` to cleanly remove content tabs and shift focus</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T024 [US3] Configure `CanDragTabs=&quot;True&quot;` and `CanReorderTabs=&quot;True&quot;` on `TabView` in `Zenix/Views/Windows/ShellWindow.xaml`</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T025 [US3] Implement `TabDragStarting` in `Zenix/Views/Windows/ShellWindow.xaml.cs` to package `TabDragPayload` and cancel dragging on the Home tab</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T026 [US3] Implement `TabDroppedOutside` in `Zenix/Views/Windows/ShellWindow.xaml.cs` to call `IWindowManager.TearOffTabToNewWindow` and spawn a new `ShellWindow` at cursor coordinates</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T027 [US3] Implement `TabStripDragOver` and `TabStripDrop` in `Zenix/Views/Windows/ShellWindow.xaml.cs` to handle cross-window tab docking</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T028 [US3] Implement donor window auto-closure rule in `Zenix/Services/WindowManager.cs` when content is transferred out of a 2-tab window leaving only Home</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T029 [US4] Remove the blocking single-instance mutex enforcement in `Zenix/Bootstrap.cs` to enable multi-process concurrency</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T030 [US4] Update named pipe / IPC registration in `Zenix/Bootstrap.cs` to use unique per-process session identifiers preventing pipe conflicts</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T031 [P] Add 100% US English XML doc comments on all new classes, interfaces, methods, and properties per Constitution Principle V</span>
+          <span class="badge-p">[P]</span>
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T032 Clean up obsolete WPF controls, converters, and assets in `Zenix/Controls/` and `Zenix/Helpers/`</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T033 Execute end-to-end quickstart validation scenarios per `specs/001-winui3-chrome-tabs/quickstart.md`</span>
+          
+        </div>
+        <div class="task-item done">
+          <span>&#9989;</span>
+          <span style="flex:1">T034 Run `dotnet build Zenix/Zenix.csproj -c Debug` to verify clean compilation with 0 errors and 0 warnings</span>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>&#127760; Top AST Hubs &amp; God Nodes</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Component / Symbol</th>
+            <th style="text-align:right">Graph Degree</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">Task</td>
+            <td style="text-align:right;font-weight:600">326</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">String</td>
+            <td style="text-align:right;font-weight:600">264</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">Fact</td>
+            <td style="text-align:right;font-weight:600">217</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">DatabaseControlViewModel</td>
+            <td style="text-align:right;font-weight:600">141</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">DatabaseInfo</td>
+            <td style="text-align:right;font-weight:600">139</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">VirtualTable</td>
+            <td style="text-align:right;font-weight:600">132</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">Zenix.Models.Database</td>
+            <td style="text-align:right;font-weight:600">119</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">TableDesignerViewModel</td>
+            <td style="text-align:right;font-weight:600">109</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">DataControlViewModel</td>
+            <td style="text-align:right;font-weight:600">104</td>
+          </tr>
+          <tr>
+            <td style="font-family:monospace;color:var(--accent)">RelayCommand</td>
+            <td style="text-align:right;font-weight:600">103</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-grid">
+    <div class="card">
+      <h2>&#128027; Bug Assessments &amp; Blast Radius</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Bug Slug</th>
+            <th>Suspect Node</th>
+            <th>Risk</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600">backdrop-visual-effect-not-rendering</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">column-header-shift-scroll-smoothness</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">column-separator-interactive-splitter</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">connect-view-code-behind-violation</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">connection-dialog-window-owner-and-types</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">content-changed-direction-race</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">dark-theme-backdrop-desynchronization</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">data-grid-performance-and-tableview</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">data-grid-scroll-placeholder-lag</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">data-grid-vertical-scrollbar-placement</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">database-alter-dialog-apptheme-missing</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">database-inner-tab-switch-delay</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">database-schema-treeview-crash</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">database-schema-treeview-rendering</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">database-tab-mojibake-and-empty-content</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">database-tab-switch-freeze</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">database-tree-auto-expand-and-loading</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">dataview-sorting-and-darktheme-text</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">dataviewcontrol-not-disposed-on-tab-close</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">dialog-darkmode-whiteout</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">document-tabview-integration-fixes</td>
+            <td style="font-family:monospace">DatabaseControlViewModel</td>
+            <td class="risk-HIGH">HIGH</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">explorer-flyout-translucency-and-static-sizing</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">header-scroll-sync-and-initial-table-latency</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">homepage-databases-open-tab</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-executing">ASSESSED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">inner-tab-tearoff-stale-capsule</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">missing-designer-delete-column-i18n</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">pagination-footer-transparent-infinity</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-executing">UNKNOWN</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">primary-key-detection-column-resize-and-smooth-scroll</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">query-editor-and-trigger-view-fixes</td>
+            <td style="font-family:monospace">QueryViewControl &amp; SqlEditorControl</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">schema-navigation-mode-always-auto</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">settings-database-navigation-unresponsive</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">shell-tab-background-canvas-highlight</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">shift-scroll-tabstrip-and-properties-panel</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">shift-wheel-horizontal-scroll</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">solid-backdrop-whiteout-and-table-theme</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tab-drag-back-empty-header</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tab-header-text-missing</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tab-motion-direction-and-indicator-flag</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tab-selection-and-home-close-button</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tab-selection-background-not-updated-on-close</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tab-tearoff-and-transfer-failures</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tab-tearoff-new-window-crash</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tab-viewport-cache-mvvm</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-alter-designer-open-delay</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-data-overlay-and-tree-icons</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-delete-row-commit-disabled</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-designer-layout-titles</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-designer-rowformat-and-switch-hover</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-loading-speed-and-memory-usage</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-executing">ASSESSED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-row-add-cancel-insert</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-switch-stale-data-display</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-tab-switch-delay-and-drag-drop-order</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-tree-loading-ring-and-expand</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">table-view-memory-and-load-performance</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-executing">UNKNOWN</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tables-loading-and-grid-scroll-lag</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tabview-drag-and-home-navigation</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">theme-backdrop-animation</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">translation-source-type-initialization</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tree-node-hit-test-area</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">tree-reset-on-database-table-create</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">treeview-expand-animation-flaws</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-executing">UNKNOWN</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">treeview-single-click-auto-invoke</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">view-selection-expands-tables</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtual-table-column-header-resize</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtual-table-many-columns-lag</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtual-table-memory-leak</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtual-table-winui-smooth-scrolling</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-border-and-cell-edit-sync</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-cell-focus-size-animation</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-checkbox-styling-and-hit-test</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-checkbox-tinyint-combobox</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-click-outside-exit-edit</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-combobox-scroll-placement</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-multicheckbox-scroll-lag-and-memory</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-executing">UNKNOWN</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-number-editor-ghost-text</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-numberbox-keyboard-commit-lost</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-row-reorder-while-editing</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600">virtualtable-scroll-recreation-and-checkbox-reload</td>
+            <td style="font-family:monospace">-</td>
+            <td class="">UNKNOWN</td>
+            <td><span class="badge badge-complete">FIXED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>&#129504; Cross-Agent Decision Journal</h2>
+      <div class="decision-feed">
+        <div class="decision-card">
+          <div class="decision-top">
+            <span><strong>antigravity</strong> &middot; ui/treeview-chevron</span>
+            <span>2026-11-03T03:11:39Z</span>
+          </div>
+          <div class="decision-title">Preserve WinUI 3 TreeViewItemTemplateSettings bindings by removing code-behind chevron DOM manipulation</div>
+          <div class="decision-body">Manipulating local Visibility or calling ClearValue destroys internal ControlTemplate bindings, causing ExpandedGlyph and CollapsedGlyph to render simultaneously</div>
+        </div>
+        <div class="decision-card">
+          <div class="decision-top">
+            <span><strong>antigravity</strong> &middot; test-log-ps1-1701771986</span>
+            <span>2026-11-03T03:05:54Z</span>
+          </div>
+          <div class="decision-title">Use AST pruning</div>
+          <div class="decision-body">Saves tokens</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,190 @@
+schema_version: "1.3.0"
+
+extension:
+  id: gss-bridge
+  name: "GSS-Bridge: Graphify + Spec-Kit + Superpowers"
+  version: "1.3.0"
+  description: "The Golden Triangle: Spec-Kit Governance, Graphify Codebase Context, and Superpowers Execution Discipline. Cross-agent."
+  author: "GSS Team"
+  repository: "https://github.com/maihcx/GSS-Bridge"
+  homepage: "https://github.com/maihcx/GSS-Bridge"
+  documentation: "https://github.com/maihcx/GSS-Bridge#readme"
+  license: MIT
+  category: process
+  effect: read-write
+
+requires:
+  speckit_version: ">=0.8.10"
+  tools:
+    - name: "powershell"
+      version: ">=5.1"
+      required: false
+    - name: "bash"
+      version: ">=4.0"
+      required: false
+    - name: "python"
+      version: ">=3.9"
+      required: false
+    - name: "jq"
+      version: ">=1.6"
+      required: false
+
+provides:
+  commands:
+    - name: speckit.gss-bridge.handoff
+      file: commands/speckit.gss-bridge.handoff.md
+      description: "Create or update the GSS-Bridge implementation handoff state"
+      aliases:
+        - speckit-gss-bridge-handoff
+        - gss-bridge-handoff
+        - gss-bridge.handoff
+    - name: speckit.gss-bridge.guard
+      file: commands/speckit.gss-bridge.guard.md
+      description: "Guard Spec-Kit, Graphify, and Superpowers boundaries"
+      aliases:
+        - speckit-gss-bridge-guard
+        - gss-bridge-guard
+        - gss-bridge.guard
+    - name: speckit.gss-bridge.execute
+      file: commands/speckit.gss-bridge.execute.md
+      description: "Execute Spec-Kit tasks with Graphify-scoped context and Superpowers TDD discipline"
+      aliases:
+        - speckit-gss-bridge-execute
+        - speckit-gss-bridge
+        - speckit.gss-bridge
+        - gss-bridge
+    - name: speckit.gss-bridge.blast-radius
+      file: commands/speckit.gss-bridge.blast-radius.md
+      description: "Analyze component blast radius and verify parallel task [P] independence using Graphify"
+      aliases:
+        - speckit-gss-bridge-blast-radius
+        - gss-bridge-blast-radius
+        - gss-bridge.blast-radius
+    - name: speckit.gss-bridge.bug-assess
+      file: commands/speckit.gss-bridge.bug-assess.md
+      description: "Diagnose and triage bug reports using Graphify knowledge graph context and blast radius analysis"
+      aliases:
+        - speckit-gss-bridge-bug-assess
+        - speckit-bug-assess
+        - gss-bridge-bug-assess
+        - speckit.bug-assess
+        - gss-bridge.bug-assess
+    - name: speckit.gss-bridge.bug-fix
+      file: commands/speckit.gss-bridge.bug-fix.md
+      description: "Implement and verify bug remediation under strict Superpowers TDD and verification discipline"
+      aliases:
+        - speckit-gss-bridge-bug-fix
+        - speckit-bug-fix
+        - gss-bridge-bug-fix
+        - speckit.bug-fix
+        - gss-bridge.bug-fix
+    - name: speckit.gss-bridge.dispatch
+      file: commands/speckit.gss-bridge.dispatch.md
+      description: "Partition tasks tagged [P] into independent execution waves and generate Graphify-scoped subagent prompts"
+      aliases:
+        - speckit-gss-bridge-dispatch
+        - gss-bridge-dispatch
+        - gss-bridge.dispatch
+    - name: speckit.gss-bridge.prune
+      file: commands/speckit.gss-bridge.prune.md
+      description: "Extract AST structural skeletons to prune token load for subagents"
+      aliases:
+        - speckit-gss-bridge-prune
+        - gss-bridge-prune
+        - gss-bridge.prune
+    - name: speckit.gss-bridge.test-select
+      file: commands/speckit.gss-bridge.test-select.md
+      description: "Select impacted test suites topologically linked to modified components via Graphify"
+      aliases:
+        - speckit-gss-bridge-test-select
+        - gss-bridge-test-select
+        - gss-bridge.test-select
+        - speckit-gss-bridge-tia
+    - name: speckit.gss-bridge.drift
+      file: commands/speckit.gss-bridge.drift.md
+      description: "Detect architectural drift, layer boundary violations, and circular dependencies"
+      aliases:
+        - speckit-gss-bridge-drift
+        - gss-bridge-drift
+        - gss-bridge.drift
+    - name: speckit.gss-bridge.repro-gen
+      file: commands/speckit.gss-bridge.repro-gen.md
+      description: "Auto-synthesize minimal failing reproduction test cases (RED) during bug triage"
+      aliases:
+        - speckit-gss-bridge-repro-gen
+        - gss-bridge-repro-gen
+        - gss-bridge.repro-gen
+    - name: speckit.gss-bridge.decision
+      file: commands/speckit.gss-bridge.decision.md
+      description: "Record and query architectural choices, trade-offs, and reasoning in a shared cross-agent journal"
+      aliases:
+        - speckit-gss-bridge-decision
+        - gss-bridge-decision
+        - gss-bridge.decision
+    - name: speckit.gss-bridge.dashboard
+      file: commands/speckit.gss-bridge.dashboard.md
+      description: "Generate a standalone interactive HTML visual dashboard summarizing tasks, graph topology, bugs, and decisions"
+      aliases:
+        - speckit-gss-bridge-dashboard
+        - gss-bridge-dashboard
+        - gss-bridge.dashboard
+    - name: speckit.gss-bridge.worktree
+      file: commands/speckit.gss-bridge.worktree.md
+      description: "Manage isolated git worktrees for concurrent subagent wave execution without git lock conflicts"
+      aliases:
+        - speckit-gss-bridge-worktree
+        - gss-bridge-worktree
+        - gss-bridge.worktree
+
+    - name: speckit.gss-bridge.teamwork
+      file: commands/speckit.gss-bridge.teamwork.md
+      description: "Orchestrate autonomous multi-agent teams (Orchestrator, Parallel Coders in Worktrees, and Sentinel Reviewer) using GSS-Bridge"
+      aliases:
+        - speckit-gss-bridge-teamwork
+        - gss-bridge-teamwork
+        - gss-teamwork
+        - speckit.teamwork
+        - gss-bridge.teamwork
+
+hooks:
+  before_clarify:
+    command: speckit.gss-bridge.guard
+    optional: false
+    description: "Prevent Spec-Kit contract modifications while implementation is executing"
+  before_plan:
+    command: speckit.gss-bridge.guard
+    optional: false
+    description: "Prevent Spec-Kit contract modifications while implementation is executing"
+  before_tasks:
+    command: speckit.gss-bridge.guard
+    optional: false
+    description: "Prevent Spec-Kit contract modifications while implementation is executing"
+  before_implement:
+    command: speckit.gss-bridge.guard
+    optional: false
+    description: "Block unprincipled speckit.implement; route through GSS-Bridge execution discipline"
+  after_tasks:
+    command: speckit.gss-bridge.handoff
+    optional: false
+    description: "Create the GSS handoff state after Spec-Kit task generation"
+  before_bug_assess:
+    command: speckit.gss-bridge.guard
+    optional: true
+    description: "Guard bug assessment preconditions"
+  before_bug_fix:
+    command: speckit.gss-bridge.guard
+    optional: false
+    description: "Enforce assessment contract before bug fix"
+
+tags:
+  - bridge
+  - graphify
+  - spec-kit
+  - superpowers
+  - cross-agent
+  - tdd
+  - blast-radius
+  - architecture-graph
+  - bug-assess
+  - bug-fix
+  - subagent-dispatch

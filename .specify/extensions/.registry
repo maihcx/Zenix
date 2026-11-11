@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "extensions": {
+    "assess": {
+      "version": "1.0.1",
+      "source": "local",
+      "manifest_hash": "sha256:a1c87d9ce8088e7865f1d352137777a693b0595ccc310957c7c051a604ca1db2",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "agy": [
+          "speckit.assess.intake",
+          "speckit.assess.research",
+          "speckit.assess.define",
+          "speckit.assess.shape",
+          "speckit.assess.decide"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-10-19T07:23:42.332108+00:00"
+    },
+    "bug": {
+      "version": "1.0.1",
+      "source": "local",
+      "manifest_hash": "sha256:0f8ca9b828f8855be72a17cdef1f355fba81d7173b16f349d500d2ab367384fb",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "agy": [
+          "speckit.bug.assess",
+          "speckit.bug.fix",
+          "speckit.bug.test"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-10-19T07:23:42.602895+00:00"
+    },
+    "gss-bridge": {
+      "version": "1.0.0",
+      "source": "local",
+      "manifest_hash": "sha256:82585a989f14a81155c58c33829a2580c0e02b9a888bb042298c138a006b6b40",
+      "enabled": true,
+      "priority": 10,
+      "registered_commands": {
+        "agy": [
+          "speckit.gss-bridge.handoff",
+          "speckit.gss-bridge.guard",
+          "speckit.gss-bridge.execute",
+          "speckit.gss-bridge",
+          "gss-bridge",
+          "speckit.gss-bridge.blast-radius"
+        ]
+      },
+      "registered_skills": [],
+      "installed_at": "2026-10-28T07:38:17.283349+00:00"
+    }
+  }
+}

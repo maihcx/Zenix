@@ -1,4 +1,4 @@
-# BRIEFING — 2026-11-11T09:35:00Z
+# BRIEFING — 2026-11-11T09:44:00Z
 
 ## Mission
 Implement atomic Double Ratchet state transitions (Clone/CommitTo), pre-authentication wire HMAC validation, MaxMessageKeys lookahead guard in StepDhRatchet, update AdversarialCryptoTests.cs, and normalize CRLF line endings.
@@ -22,7 +22,7 @@ Implement atomic Double Ratchet state transitions (Clone/CommitTo), pre-authenti
 
 ## Current Parent
 - Conversation ID: 8f2b359c-f3ff-43a7-ad0b-7cd2933ec630
-- Updated: not yet
+- Updated: 2026-11-11T09:44:00Z
 
 ## Task Summary
 - **What to build**: Double Ratchet transactional Clone/CommitTo, wire HMAC pre-verification, bounded lookahead in StepDhRatchet, AdversarialCryptoTests positive assertions, CRLF normalization
@@ -31,9 +31,12 @@ Implement atomic Double Ratchet state transitions (Clone/CommitTo), pre-authenti
 - **Code layout**: Zenix/Core/Zalo/Cryptography, tests/Zenix.Tests/Zalo/
 
 ## Key Decisions Made
-- Use transactional Clone/CommitTo pattern for candidate DoubleRatchetSessionState
-- Enforce Encrypt-then-MAC discipline by splitting DeriveMessageKeys from DecryptCiphertext
-- Bound remotePreviousCounter in StepDhRatchet against MaxMessageKeys (2000)
+- Implemented deep-cloning `Clone()` and transactional zero-transfer `CommitTo(target)` on `DoubleRatchetSessionState`.
+- Implemented `DeriveMessageKeys` separating ratchet key derivation from AES decryption, maintaining backward-compatible `Decrypt`.
+- Enforced Encrypt-then-MAC discipline in `DecryptWhisperWire`: verified wire HMAC on candidate before committing state to live session or attempting AES decryption.
+- Bounded `remotePreviousCounter` lookahead in `StepDhRatchet` with `MaxMessageKeys` (2000) guard.
+- Staged Type 3 `PreKeyWhisperMessage` handshake session commitment until after inner wire authentication and decryption succeeds.
+- Normalized CRLF line endings across all files; verified 0 non-CRLF files.
 
 ## Artifact Index
 - d:\DEV\WinUI\Zenix\.agents\teamwork\worker_wave2_remediation\DISPATCH.md — Dispatch instructions
@@ -41,14 +44,19 @@ Implement atomic Double Ratchet state transitions (Clone/CommitTo), pre-authenti
 - d:\DEV\WinUI\Zenix\.agents\teamwork\worker_wave2_remediation\handoff.md — Final deliverable report
 
 ## Change Tracker
-- **Files modified**: None yet
-- **Build status**: Untested
+- **Files modified**:
+  - `Zenix/Core/Zalo/Cryptography/DoubleRatchetSessionState.cs`: Added `Clone()` and `CommitTo()` with secure zeroing.
+  - `Zenix/Core/Zalo/Cryptography/SignalDoubleRatchetService.cs`: Added lookahead guard in `StepDhRatchet`, decomposed `DeriveMessageKeys` / `DecryptCiphertext`.
+  - `Zenix/Core/Zalo/Cryptography/SignalE2eeService.cs`: Transactional candidate staged execution in `DecryptWhisperWire`, deferred Type 3 session cache insertion.
+  - `tests/Zenix.Tests/Zalo/Crypto/AdversarialCryptoTests.cs`: Updated 3 tests to assert positive security invariants.
+  - `tests/Zenix.Tests/Zalo/Storage/StorageStressChallengerTests.cs`: Normalized line endings to CRLF.
+- **Build status**: PASS (0 warnings, 0 errors)
 - **Pending issues**: None
 
 ## Quality Status
-- **Build/test result**: Untested
-- **Lint status**: Clean
-- **Tests added/modified**: AdversarialCryptoTests.cs
+- **Build/test result**: PASS (162/162 passed in Zenix.sln, 29/29 in Crypto suite)
+- **Lint status**: Clean (IDE0065 clean, CRLF clean)
+- **Tests added/modified**: 3 tests in AdversarialCryptoTests.cs converted from exploratory probes to hard assertions
 
 ## Loaded Skills
 - None

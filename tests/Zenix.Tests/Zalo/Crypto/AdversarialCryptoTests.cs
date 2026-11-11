@@ -576,4 +576,300 @@ public sealed class AdversarialCryptoTests
         decrypted.Should().Be("legitimate_message_after_attack",
             "Bob's session state must remain completely unpoisoned and synchronized with Alice after a forged packet is rejected.");
     }
+
+    /// <summary>
+    /// Probes Double Ratchet and X3DH handshake resilience against forged Type 3 PreKeyWhisperMessage packets:
+    /// An attacker attempting to hijack an established session by delivering a bogus Type 3 handshake
+    /// must fail inner wire HMAC authentication and leave the existing session completely unmodified.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Crypto")]
+    public async Task Adversarial_ForgedType3Handshake_DoesNotCorruptOrHijackExistingSession()
+    {
+        const string aliceId = "alice_type3_probe";
+        const string bobId = "bob_type3_probe";
+
+        await _e2ee.RegisterIdentityAsync(aliceId);
+        await _e2ee.RegisterIdentityAsync(bobId);
+
+        // 1. Establish authentic session
+        var initEnv = await _e2ee.EncryptAsync("authentic_init", aliceId, bobId);
+        var initDecrypted = await _e2ee.DecryptAsync(initEnv, bobId, aliceId);
+        initDecrypted.Should().Be("authentic_init");
+
+        var replyEnv = await _e2ee.EncryptAsync("authentic_reply", bobId, aliceId);
+        await _e2ee.DecryptAsync(replyEnv, aliceId, bobId);
+
+        // 2. Attacker crafts a forged Type 3 PreKeyWhisperMessage
+        var attackerBaseKey = Curve25519Helper.GenerateKeyPair(includePrefix: true).PublicKey;
+        var attackerIdKey = Curve25519Helper.GenerateKeyPair(includePrefix: true).PublicKey;
+        var bogusEphemeral = Curve25519Helper.GenerateKeyPair(includePrefix: true).PublicKey;
+
+        // Valid inner WhisperMessage protobuf structure with bad HMAC
+        using var innerMs = new System.IO.MemoryStream();
+        innerMs.WriteByte((1 << 3) | 2);
+        innerMs.WriteByte((byte)bogusEphemeral.Length);
+        innerMs.Write(bogusEphemeral);
+        innerMs.WriteByte((2 << 3) | 0);
+        innerMs.WriteByte(0);
+        innerMs.WriteByte((3 << 3) | 0);
+        innerMs.WriteByte(0);
+        innerMs.WriteByte((4 << 3) | 2);
+        innerMs.WriteByte(16);
+        innerMs.Write(new byte[16]);
+
+        var innerProto = innerMs.ToArray();
+        var bogusWire = new byte[1 + innerProto.Length + 8];
+        bogusWire[0] = 0x33;
+        innerProto.CopyTo(bogusWire.AsSpan(1));
+        RandomNumberGenerator.Fill(bogusWire.AsSpan(1 + innerProto.Length, 8));
+
+        using var ms = new System.IO.MemoryStream();
+        // field 1: registrationId
+        ms.WriteByte((1 << 3) | 0);
+        ms.WriteByte(99);
+        // field 2: baseKey
+        ms.WriteByte((2 << 3) | 2);
+        ms.WriteByte((byte)attackerBaseKey.Length);
+        ms.Write(attackerBaseKey);
+        // field 3: identityKey
+        ms.WriteByte((3 << 3) | 2);
+        ms.WriteByte((byte)attackerIdKey.Length);
+        ms.Write(attackerIdKey);
+        // field 4: message (inner WhisperMessage wire)
+        ms.WriteByte((4 << 3) | 2);
+        ms.WriteByte((byte)bogusWire.Length);
+        ms.Write(bogusWire);
+
+        var preKeyProto = ms.ToArray();
+        var forgedEnvelopeBytes = new byte[1 + preKeyProto.Length];
+        forgedEnvelopeBytes[0] = 0x33;
+        preKeyProto.CopyTo(forgedEnvelopeBytes.AsSpan(1));
+
+        var forgedType3Env = new SignalMessageEnvelope(3, Convert.ToBase64String(forgedEnvelopeBytes), 9999);
+
+        // Bob receives attacker's forged Type 3 packet -> must throw CryptographicException on inner wire HMAC
+        var actForged = async () => await _e2ee.DecryptAsync(forgedType3Env, bobId, aliceId);
+        await actForged.Should().ThrowAsync<CryptographicException>()
+            .WithMessage("*HMAC authentication failed for WhisperMessage*");
+
+        // 3. Alice sends next authentic Type 1 message
+        var legitEnv = await _e2ee.EncryptAsync("authentic_message_post_type3_attack", aliceId, bobId);
+        legitEnv.Type.Should().Be(1);
+
+        // Bob MUST decrypt Alice's message cleanly using the un-hijacked session
+        var decrypted = await _e2ee.DecryptAsync(legitEnv, bobId, aliceId);
+        decrypted.Should().Be("authentic_message_post_type3_attack",
+            "Bob's session with Alice must not be hijacked or corrupted by an attacker's failed Type 3 handshake.");
+    }
+
+    /// <summary>
+    /// Probes continuous bombardment attack: 25 cycles of an attacker injecting forged packets
+    /// with bogus ephemeral keys and invalid HMACs, interleaved with legitimate bidirectional messages.
+    /// Asserts 100% session synchronization and zero message loss under persistent adversarial noise.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Crypto")]
+    public async Task Adversarial_ContinuousBombardment_InterleavedWithLegitimateTraffic_PreservesIntegrity()
+    {
+        const string aliceId = "alice_bombard_probe";
+        const string bobId = "bob_bombard_probe";
+
+        await _e2ee.RegisterIdentityAsync(aliceId);
+        await _e2ee.RegisterIdentityAsync(bobId);
+
+        // Establish session
+        var env0 = await _e2ee.EncryptAsync("handshake", aliceId, bobId);
+        await _e2ee.DecryptAsync(env0, bobId, aliceId);
+
+        var reply0 = await _e2ee.EncryptAsync("handshake_reply", bobId, aliceId);
+        await _e2ee.DecryptAsync(reply0, aliceId, bobId);
+
+        for (var i = 1; i <= 25; i++)
+        {
+            // 1. Attacker delivers forged packet with random ephemeral key
+            var bogusEphemeral = Curve25519Helper.GenerateKeyPair(includePrefix: true).PublicKey;
+            using var ms = new System.IO.MemoryStream();
+            ms.WriteByte((1 << 3) | 2);
+            ms.WriteByte((byte)bogusEphemeral.Length);
+            ms.Write(bogusEphemeral);
+            ms.WriteByte((2 << 3) | 0);
+            ms.WriteByte((byte)i);
+            ms.WriteByte((3 << 3) | 0);
+            ms.WriteByte(0);
+            ms.WriteByte((4 << 3) | 2);
+            ms.WriteByte(16);
+            ms.Write(new byte[16]);
+
+            var bogusProto = ms.ToArray();
+            var bogusWire = new byte[1 + bogusProto.Length + 8];
+            bogusWire[0] = 0x33;
+            bogusProto.CopyTo(bogusWire.AsSpan(1));
+            RandomNumberGenerator.Fill(bogusWire.AsSpan(1 + bogusProto.Length, 8));
+
+            var forgedEnv = new SignalMessageEnvelope(1, Convert.ToBase64String(bogusWire), 8888 + i);
+            var act = async () => await _e2ee.DecryptAsync(forgedEnv, bobId, aliceId);
+            await act.Should().ThrowAsync<CryptographicException>();
+
+            // 2. Alice sends legitimate message
+            var aliceText = $"Alice_Legit_{i}";
+            var aliceEnv = await _e2ee.EncryptAsync(aliceText, aliceId, bobId);
+            var bobReceived = await _e2ee.DecryptAsync(aliceEnv, bobId, aliceId);
+            bobReceived.Should().Be(aliceText);
+
+            // 3. Bob sends legitimate reply
+            var bobText = $"Bob_Reply_{i}";
+            var bobEnv = await _e2ee.EncryptAsync(bobText, bobId, aliceId);
+            var aliceReceived = await _e2ee.DecryptAsync(bobEnv, aliceId, bobId);
+            aliceReceived.Should().Be(bobText);
+        }
+    }
+
+    /// <summary>
+    /// Probes out-of-order delivery through the full ISignalE2eeService stack (including state cloning,
+    /// wire HMAC verification, candidate commit, and AES decryption).
+    /// Asserts all out-of-order messages decrypt cleanly and replaying any fails.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Crypto")]
+    public async Task Adversarial_OutOfOrderDelivery_ThroughE2eeService_DecryptsAllCleanly()
+    {
+        const string aliceId = "alice_ooo_stack";
+        const string bobId = "bob_ooo_stack";
+
+        await _e2ee.RegisterIdentityAsync(aliceId);
+        await _e2ee.RegisterIdentityAsync(bobId);
+
+        // Handshake
+        var h1 = await _e2ee.EncryptAsync("init", aliceId, bobId);
+        await _e2ee.DecryptAsync(h1, bobId, aliceId);
+        var h2 = await _e2ee.EncryptAsync("reply", bobId, aliceId);
+        await _e2ee.DecryptAsync(h2, aliceId, bobId);
+
+        // Alice generates 10 sequential messages
+        var envelopes = new List<SignalMessageEnvelope>();
+        var plaintexts = new List<string>();
+        for (var i = 0; i < 10; i++)
+        {
+            var text = $"Message_{i}";
+            plaintexts.Add(text);
+            envelopes.Add(await _e2ee.EncryptAsync(text, aliceId, bobId));
+        }
+
+        // Adversarial shuffled arrival order: 3, 1, 0, 4, 7, 2, 5, 9, 8, 6
+        int[] shuffle = [3, 1, 0, 4, 7, 2, 5, 9, 8, 6];
+        foreach (var idx in shuffle)
+        {
+            var decrypted = await _e2ee.DecryptAsync(envelopes[idx], bobId, aliceId);
+            decrypted.Should().Be(plaintexts[idx], $"Out-of-order message #{idx} must decrypt cleanly.");
+        }
+
+        // Replay of already delivered message must fail
+        var replayAct = async () => await _e2ee.DecryptAsync(envelopes[4], bobId, aliceId);
+        await replayAct.Should().ThrowAsync<CryptographicException>();
+    }
+
+    /// <summary>
+    /// Probes exact boundary enforcement in StepDhRatchet:
+    /// A jump of exactly 2000 skipped keys (2000 - 0 = 2000) must succeed and allocate 2000 keys.
+    /// A jump of 2001 skipped keys (2001 - 0 = 2001) must throw InvalidOperationException and allocate 0 keys.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Crypto")]
+    public void StepDhRatchet_ExactBoundary_2000Allowed_2001Rejected()
+    {
+        var aliceId = Curve25519Helper.GenerateKeyPair(includePrefix: true);
+        var bobId = Curve25519Helper.GenerateKeyPair(includePrefix: true);
+        var bobSpk = Curve25519Helper.GenerateKeyPair(includePrefix: true);
+
+        var sharedMasterSecret = new byte[64];
+        RandomNumberGenerator.Fill(sharedMasterSecret);
+
+        // Boundary test 1: Jump of exactly 2000 is allowed
+        using var aliceSession1 = _ratchet.InitializeInitiatorSession(
+            sharedMasterSecret, bobSpk.PublicKey, aliceId.PublicKey, bobId.PublicKey, 4001);
+        using var bobSession1 = _ratchet.InitializeRecipientSession(
+            sharedMasterSecret, bobSpk, bobId.PublicKey, aliceId.PublicKey, 4002);
+
+        var (ct0, c0, p0, ephem0, _) = _ratchet.Encrypt(aliceSession1, "init"u8);
+        _ratchet.Decrypt(bobSession1, ephem0, c0, p0, ct0);
+
+        var (repCt, repC, repP, repEphem, _) = _ratchet.Encrypt(bobSession1, "reply"u8);
+        _ratchet.Decrypt(aliceSession1, repEphem, repC, repP, repCt);
+
+        // Alice steps ratchet with previousCounter = 2001 (diff = 2001 - 1 = 2000 <= 2000)
+        var targetPrevCounter2000 = bobSession1.ReceiveMessageCounter + 2000;
+        var (ctBound2000, cBound2000, _, ephemBound2000, _) = _ratchet.Encrypt(aliceSession1, "boundary2000"u8);
+        var (plain2000, _) = _ratchet.Decrypt(bobSession1, ephemBound2000, cBound2000, targetPrevCounter2000, ctBound2000);
+        Encoding.UTF8.GetString(plain2000).Should().Be("boundary2000");
+        bobSession1.SkippedMessageKeys.Count.Should().Be(2000, "Exactly 2000 skipped keys should be allocated.");
+
+        // Boundary test 2: Jump of 2001 is rejected
+        using var aliceSession2 = _ratchet.InitializeInitiatorSession(
+            sharedMasterSecret, bobSpk.PublicKey, aliceId.PublicKey, bobId.PublicKey, 4003);
+        using var bobSession2 = _ratchet.InitializeRecipientSession(
+            sharedMasterSecret, bobSpk, bobId.PublicKey, aliceId.PublicKey, 4004);
+
+        var (ct0B, c0B, p0B, ephem0B, _) = _ratchet.Encrypt(aliceSession2, "initB"u8);
+        _ratchet.Decrypt(bobSession2, ephem0B, c0B, p0B, ct0B);
+
+        var (repCtB, repCB, repPB, repEphemB, _) = _ratchet.Encrypt(bobSession2, "replyB"u8);
+        _ratchet.Decrypt(aliceSession2, repEphemB, repCB, repPB, repCtB);
+
+        // Alice steps ratchet with previousCounter = 2002 (diff = 2002 - 1 = 2001 > 2000)
+        var targetPrevCounter2001 = bobSession2.ReceiveMessageCounter + 2001;
+        var (ctBound2001, cBound2001, _, ephemBound2001, _) = _ratchet.Encrypt(aliceSession2, "boundary2001"u8);
+        var act2001 = () => _ratchet.Decrypt(bobSession2, ephemBound2001, cBound2001, targetPrevCounter2001, ctBound2001);
+        act2001.Should().Throw<InvalidOperationException>()
+            .WithMessage("*Over messages into the future: 2000*");
+        bobSession2.SkippedMessageKeys.Should().BeEmpty("Memory must remain empty on rejected boundary jump.");
+    }
+
+    /// <summary>
+    /// Probes retransmission of a packet that steps the DH ratchet:
+    /// When a message with a new remote ephemeral key has its wire HMAC corrupted in transit,
+    /// Bob's live session must not step its DH ratchet or mutate its root key.
+    /// Retransmission of the authentic stepped packet must then succeed and step the ratchet cleanly.
+    /// </summary>
+    [Fact]
+    [Trait("Category", "Crypto")]
+    public async Task Adversarial_SteppedDhRetransmission_AllowsLegitimatePacketAfterCorruption()
+    {
+        const string aliceId = "alice_step_retrans";
+        const string bobId = "bob_step_retrans";
+
+        await _e2ee.RegisterIdentityAsync(aliceId);
+        await _e2ee.RegisterIdentityAsync(bobId);
+
+        // 1. Establish session
+        var h1 = await _e2ee.EncryptAsync("init", aliceId, bobId);
+        await _e2ee.DecryptAsync(h1, bobId, aliceId);
+
+        // 2. Bob replies (Bob steps sending ratchet)
+        var h2 = await _e2ee.EncryptAsync("reply_from_bob", bobId, aliceId);
+        await _e2ee.DecryptAsync(h2, aliceId, bobId);
+
+        // 3. Alice sends a new message (this steps DH ratchet because Alice replies to Bob's new ephemeral key)
+        var aliceSteppedEnv = await _e2ee.EncryptAsync("alice_stepped_message", aliceId, bobId);
+
+        // Corrupt HMAC in transit
+        var wireBytes = Convert.FromBase64String(aliceSteppedEnv.Body);
+        wireBytes[^1] ^= 0xFF;
+        var corruptedEnv = new SignalMessageEnvelope(aliceSteppedEnv.Type, Convert.ToBase64String(wireBytes), aliceSteppedEnv.RegistrationId);
+
+        // Bob attempts to decrypt corrupted stepped packet -> must fail HMAC
+        var decryptAct = async () => await _e2ee.DecryptAsync(corruptedEnv, bobId, aliceId);
+        await decryptAct.Should().ThrowAsync<CryptographicException>()
+            .WithMessage("*HMAC authentication failed for WhisperMessage*");
+
+        // 4. Alice retransmits the authentic stepped packet -> must succeed!
+        var retransmitted = await _e2ee.DecryptAsync(aliceSteppedEnv, bobId, aliceId);
+        retransmitted.Should().Be("alice_stepped_message",
+            "Retransmission of a stepped DH packet after in-transit corruption must succeed because Bob's live DH ratchet was not poisoned.");
+
+        // 5. Subsequent message on that new chain decrypts cleanly
+        var nextAliceEnv = await _e2ee.EncryptAsync("alice_next_msg", aliceId, bobId);
+        var decryptedNext = await _e2ee.DecryptAsync(nextAliceEnv, bobId, aliceId);
+        decryptedNext.Should().Be("alice_next_msg");
+    }
 }

@@ -55,9 +55,9 @@ Wave 2 delivers the foundational Storage and Cryptographic engines of Zenix's Za
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
 | M2-Survey | Exploration & Spec Mining | Deep survey of existing codebase, contracts, specs, and zalo-swift-re reference implementations | none | DONE |
-| M2-A | Storage Infrastructure & Repositories | T-008 to T-013: SQLite DAL, Migrator, Repositories, Credential Storage, Facade | M2-Survey | IN_PROGRESS |
-| M2-B | Core Cryptography & Signal E2EE | T-014 to T-018: AES primitives, Keychain HKDF, XOR 147, X3DH, Double Ratchet, E2EE Service | M2-Survey | IN_PROGRESS |
-| M2-C | Verification & GATE_02 Compliance | GATE 2A, GATE 2B, full regression (83/83 Wave 1 tests), clean build | M2-A, M2-B | PLANNED |
+| M2-A | Storage Infrastructure & Repositories | T-008 to T-013: SQLite DAL, Migrator, Repositories, Credential Storage, Facade | M2-Survey | DONE |
+| M2-B | Core Cryptography & Signal E2EE | T-014 to T-018: AES primitives, Keychain HKDF, XOR 147, X3DH, Double Ratchet, E2EE Service | M2-Survey | DONE |
+| M2-C | Verification & GATE_02 Compliance | GATE 2A, GATE 2B, full regression (83/83 Wave 1 tests), clean build | M2-A, M2-B | DONE |
 
 ## Interface Contracts
 - `IZaloStorageService.cs` in `Zenix/Core/Zalo/Contracts/IZaloStorageService.cs` (includes `IConversationRepository`, `IMessageRepository`, `IContactRepository`).

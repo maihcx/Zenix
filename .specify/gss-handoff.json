@@ -1,0 +1,1865 @@
+{
+  "version": "1.0.0",
+  "featureId": "zalo-winui-port",
+  "constitutionVersion": "1.19.0",
+  "timestamp": "2026-11-11T05:50:25Z",
+  "targetPlatform": ".NET 10.0 (net10.0-windows10.0.26100.0) WinUI 3 + Windows App SDK",
+  "status": "READY_FOR_EXECUTION",
+  "schema_version": 1,
+  "updated_at": "2026-11-11T05:50:25Z",
+  "feature_directory": ".specify/specs",
+  "artifact_owner": "antigravity",
+  "executor": "gss-bridge",
+  "supersedes": [
+    "speckit.implement"
+  ],
+  "blocked_reason": null,
+  "review_only_agents": [],
+  "last_snapshot_id": "20261111T05502575310Z-ready",
+  "artifacts_sha256": null,
+  "instructions": "Use /gss-bridge or /speckit-gss-bridge-execute. GSS-Bridge combines Spec-Kit governance, Graphify topology context, and Superpowers TDD execution discipline.",
+  "capabilities": [
+    "graphify-codebase-intelligence",
+    "blast-radius-analysis",
+    "task-parallelism-verification",
+    "executing-plans",
+    "test-driven-development",
+    "subagent-scoping",
+    "systematic-debugging",
+    "verification-before-completion",
+    "requesting-code-review",
+    "finishing-a-development-branch"
+  ],
+  "artifacts": {
+    "constitution": ".specify/memory/constitution.md",
+    "spec": ".specify/specs/spec.md",
+    "plan": ".specify/specs/plan.md",
+    "research": ".specify/specs/research.md",
+    "data_model": ".specify/specs/data-model.md",
+    "contracts_dir": ".specify/specs/contracts/",
+    "contracts_overview": ".specify/specs/contracts/service-interfaces.md",
+    "quickstart": ".specify/specs/quickstart.md",
+    "tasks": ".specify/specs/tasks.md"
+  },
+  "source_of_truth": {
+    "constitution": ".specify/memory/constitution.md",
+    "spec": ".specify/specs/spec.md",
+    "plan": ".specify/specs/plan.md",
+    "tasks": ".specify/specs/tasks.md"
+  },
+  "graphify_knowledge_topology": {
+    "framework": "Graphify AST Code Knowledge Graph",
+    "exclusion_policy": ".graphifyignore v1.2.1",
+    "total_mapped_components": 9,
+    "component_nodes": {
+      "CoreModels": {
+        "id": "Zenix.Core.Zalo.Models",
+        "layer": "Core Domain Models",
+        "namespace": "Zenix.Core.Zalo.Models",
+        "path": "Zenix/Core/Zalo/Models/",
+        "submodules": [
+          "Zenix.Core.Zalo.Models.Enums",
+          "Zenix.Core.Zalo.Models.Profiles",
+          "Zenix.Core.Zalo.Models.Messages",
+          "Zenix.Core.Zalo.Models.Messages.Payloads",
+          "Zenix.Core.Zalo.Models.Dto"
+        ],
+        "description": "Immutable records, value objects, and domain enums. Terminal leaf nodes with zero UI or external I/O dependencies.",
+        "direct_callers": [
+          "CoreContracts",
+          "StorageServices",
+          "CryptoServices",
+          "NetworkGateway",
+          "BusinessDomain",
+          "PresentationViewModels",
+          "PresentationViewsControls",
+          "TestingHarness"
+        ],
+        "direct_callees": [],
+        "invariants": [
+          "100% C# records with init-only properties",
+          "Zero UI type imports (Microsoft.UI.Xaml.*)",
+          "Roslyn IDE0065 clean"
+        ]
+      },
+      "CoreContracts": {
+        "id": "Zenix.Core.Zalo.Contracts",
+        "layer": "Core Interface Contracts",
+        "namespace": "Zenix.Core.Zalo.Contracts",
+        "path": "Zenix/Core/Zalo/Contracts/",
+        "interfaces": [
+          "IZaloClient",
+          "IZaloAuthService",
+          "IZaloGatewayService",
+          "IZaloCryptoService",
+          "IZaloMessageService",
+          "IZaloMediaService",
+          "IZaloContactService",
+          "IZaloStorageService",
+          "IFilePickerService",
+          "IDialogService",
+          "IChatViewModel",
+          "IConversationListViewModel"
+        ],
+        "description": "Strict C# interface contracts defining service boundaries, async signatures with CancellationToken, and decoupling ViewModels from concrete implementations.",
+        "direct_callers": [
+          "BusinessDomain",
+          "PresentationViewModels",
+          "ApplicationHostService",
+          "TestingHarness"
+        ],
+        "direct_callees": [
+          "CoreModels"
+        ],
+        "invariants": [
+          "100% async methods take CancellationToken",
+          "Zero UI types in contract parameters or return values",
+          "100% XML doc comments in American English"
+        ]
+      },
+      "StorageServices": {
+        "id": "Zenix.Services.Storage",
+        "layer": "Infrastructure Storage DAL 4.0",
+        "namespace": "Zenix.Core.Zalo.Storage",
+        "path": "Zenix/Core/Zalo/Storage/",
+        "submodules": [
+          "Zenix.Core.Zalo.Storage.Repositories"
+        ],
+        "key_components": [
+          "ZaloSqliteDalService",
+          "ZaloSqliteMigrator",
+          "ConversationRepository",
+          "MessageRepository",
+          "ContactRepository",
+          "GroupRepository",
+          "FailedDraftStore",
+          "ZaloCredentialStorage",
+          "ZaloStorageService"
+        ],
+        "description": "SQLite DAL 4.0 persistence engine in WAL journal mode with connection pooling, SemaphoreSlim serialized writes, schema migrator (v400), and DPAPI credential protection.",
+        "direct_callers": [
+          "BusinessDomain",
+          "TestingHarness"
+        ],
+        "direct_callees": [
+          "CoreModels",
+          "CoreContracts",
+          "Microsoft.Data.Sqlite",
+          "Windows DPAPI"
+        ],
+        "invariants": [
+          "PRAGMA journal_mode = WAL",
+          "PRAGMA synchronous = NORMAL",
+          "PRAGMA busy_timeout = 5000",
+          "Zero plain-text secret storage",
+          "Query latency <= 1.5ms for 50 records"
+        ]
+      },
+      "CryptoServices": {
+        "id": "Zenix.Services.Crypto",
+        "layer": "Infrastructure Cryptography & E2EE",
+        "namespace": "Zenix.Core.Zalo.Cryptography",
+        "path": "Zenix/Core/Zalo/Cryptography/",
+        "key_components": [
+          "ZaloCryptoService",
+          "MediaDenoiseHelper",
+          "SignalX3dhService",
+          "Curve25519Helper",
+          "SignalDoubleRatchetService",
+          "DoubleRatchetSessionState",
+          "SignalE2eeService",
+          "SafetyNumberFormatter"
+        ],
+        "description": "AES-256-CBC zcid hex encryption, Base64 parameter encryption, trusted-device keychain envelopes with HKDF-SHA256, XOR 147 media de-noising, and Signal Protocol Double Ratchet E2EE with 60-digit Safety Numbers.",
+        "direct_callers": [
+          "BusinessDomain",
+          "NetworkGateway",
+          "TestingHarness"
+        ],
+        "direct_callees": [
+          "CoreModels",
+          "CoreContracts",
+          "System.Security.Cryptography"
+        ],
+        "invariants": [
+          "Constant-time HMAC verification via FixedTimeEquals",
+          "Test vector parity with zalo-swift-re",
+          "Zero managed memory leakage of cryptographic keys",
+          "Safety Number generation <= 2.0ms"
+        ]
+      },
+      "NetworkGateway": {
+        "id": "Zenix.Services.Network",
+        "layer": "Infrastructure Transport & Realtime Gateway",
+        "namespace": "Zenix.Core.Zalo.Network",
+        "path": "Zenix/Core/Zalo/Network/",
+        "key_components": [
+          "ZaloWireFingerprintHandler",
+          "DohResolverService",
+          "ZaloGatewayFraming",
+          "GatewayPacket",
+          "ZaloGatewayService"
+        ],
+        "description": "Chromium 108 wire fingerprint HTTP handler, Google DoH fallback DNS resolver, 4-byte binary framing engine with zero-allocation ReadOnlySpan slicing, and ClientWebSocket duplex actor.",
+        "direct_callers": [
+          "BusinessDomain",
+          "TestingHarness"
+        ],
+        "direct_callees": [
+          "CoreModels",
+          "CoreContracts",
+          "System.Net.Http",
+          "System.Net.WebSockets"
+        ],
+        "invariants": [
+          "Zero heap allocation for 4-byte header decoding",
+          "Chromium 108 sec-ch-ua headers injected",
+          "Stripped Origin/Referer headers",
+          "Heartbeat ping every 30s",
+          "Exponential backoff reconnect"
+        ]
+      },
+      "BusinessDomain": {
+        "id": "Zenix.Services.Business",
+        "layer": "Domain Business Logic & Coordination",
+        "namespace": "Zenix.Core.Zalo.Services",
+        "path": "Zenix/Core/Zalo/Services/",
+        "key_components": [
+          "ZaloAuthService",
+          "ZaloMessageService",
+          "MentionParser",
+          "ZaloMessageLifecycleService",
+          "ZaloReactionService",
+          "ZaloMediaService",
+          "IsoBmffDetector",
+          "ZaloContactService",
+          "VietnameseSearchHelper",
+          "ZaloClient"
+        ],
+        "description": "Multi-step QR authentication state machine, 5-stage message transmission lifecycle (10 -> 1 -> 2 -> 3 -> 4), mention offset re-basing, recall, soft-delete undo timers, reaction aggregation, chunked media uploads, ISO-BMFF thumbnail extraction, diacritic-insensitive search, and master ZaloClient coordinator.",
+        "direct_callers": [
+          "PresentationViewModels",
+          "ApplicationHostService",
+          "TestingHarness"
+        ],
+        "direct_callees": [
+          "CoreModels",
+          "CoreContracts",
+          "StorageServices",
+          "CryptoServices",
+          "NetworkGateway"
+        ],
+        "invariants": [
+          "Thread-safe event publishing",
+          "Automatic QR2 fallback on error -20",
+          "Max 3 concurrent media uploads/downloads",
+          "Single-session kickout handling",
+          "Async resource disposal"
+        ]
+      },
+      "PresentationViewModels": {
+        "id": "Zenix.ViewModels",
+        "layer": "Presentation ViewModels (Clean MVVM)",
+        "namespace": "Zenix.ViewModels.Zalo",
+        "path": "Zenix/ViewModels/Zalo/",
+        "key_components": [
+          "ZaloLoginViewModel",
+          "ZaloConversationListViewModel",
+          "ConversationSummaryItemViewModel",
+          "ZaloChatViewModel",
+          "ChatMessageItemViewModel",
+          "ZaloSettingsViewModel"
+        ],
+        "description": "Pure Clean MVVM ViewModels using CommunityToolkit.Mvvm source generators ([ObservableProperty], [RelayCommand]). 100% UI-agnostic with zero references to Microsoft.UI.Xaml.*. UI thread marshalling strictly via DispatcherQueue.TryEnqueue.",
+        "direct_callers": [
+          "PresentationViewsControls",
+          "TestingHarness"
+        ],
+        "direct_callees": [
+          "CoreModels",
+          "CoreContracts",
+          "BusinessDomain"
+        ],
+        "invariants": [
+          "Zero UI types (UIElement, FrameworkElement, Window)",
+          "Resolved via Dependency Injection",
+          "Property change notification on all bindable fields",
+          "DispatcherQueue thread marshalling"
+        ]
+      },
+      "PresentationViewsControls": {
+        "id": "Zenix.Views",
+        "layer": "Presentation XAML Views, DataTemplates & Converters",
+        "namespace": "Zenix.Views.Zalo",
+        "path": "Zenix/Views/Zalo/",
+        "submodules": [
+          "Zenix.Converters.Zalo",
+          "Zenix.Views.Zalo.Templates",
+          "Zenix.Services.WinUI"
+        ],
+        "key_components": [
+          "DeliveryStatusToIconConverter",
+          "TimestampToRelativeStringConverter",
+          "MessageBubbleTemplateSelector",
+          "ReactionCountConverter",
+          "InitialsAvatarColorConverter",
+          "MessageBubbleTemplates.xaml",
+          "ZaloLoginPage.xaml",
+          "ZaloConversationListView.xaml",
+          "ZaloChatPage.xaml",
+          "WinUIDialogService",
+          "WinUIFilePickerService"
+        ],
+        "description": "WinUI 3 native Fluent UI pages, virtualized ListViews, compiled {x:Bind} bindings, 14-subtype message bubble DataTemplates, and dynamic localization binding via {Binding [Key], Source={StaticResource Localization}}. Zero code-behind business logic or visual tree manipulation.",
+        "direct_callers": [
+          "ApplicationHostService",
+          "NavigationService",
+          "AgentDesktopAutomation"
+        ],
+        "direct_callees": [
+          "PresentationViewModels",
+          "CoreContracts",
+          "TranslationSource",
+          "Windows App SDK WinUI 3"
+        ],
+        "invariants": [
+          "100% {x:Bind} compile-time data binding",
+          "Zero code-behind DOM manipulation (Children.Add/Remove, container swapping)",
+          "Zero hardcoded user-facing strings",
+          "All strings bound to TranslationSource.Instance",
+          "Virtualized ListView rendering at 60 FPS"
+        ]
+      },
+      "TestingHarness": {
+        "id": "Zenix.Tests",
+        "layer": "Automated Testing, Verification & UI Automation",
+        "namespace": "Zenix.Tests.Zalo",
+        "path": "tests/Zenix.Tests/Zalo/",
+        "test_suites": [
+          "ProfileModelTests",
+          "MessagePayloadSerializationTests",
+          "DtoSerializationTests",
+          "LocalizationVerificationTests",
+          "ZaloSqliteDalTests",
+          "SqliteMigrationTests",
+          "MessageRepositoryTests",
+          "ContactRepositoryTests",
+          "CredentialStorageTests",
+          "ZaloStorageServiceTests",
+          "ZaloCryptoTests",
+          "SignalX3dhTests",
+          "DoubleRatchetTests",
+          "SignalE2eeTests",
+          "WireFingerprintHandlerTests",
+          "DohResolverTests",
+          "ZaloGatewayFramingTests",
+          "ZaloGatewayServiceTests",
+          "ZaloAuthServiceTests",
+          "ZaloMessageServiceTests",
+          "MessageLifecycleTests",
+          "ReactionServiceTests",
+          "ZaloMediaServiceTests",
+          "ZaloContactServiceTests",
+          "ZaloClientTests",
+          "DialogServiceTests",
+          "ZaloLoginViewModelTests",
+          "ConversationListViewModelTests",
+          "ZaloChatViewModelTests",
+          "ZaloSettingsViewModelTests",
+          "ConverterTests",
+          "DependencyInjectionContainerTests",
+          "XamlComplianceTests",
+          "AgentDesktopVerificationScenario"
+        ],
+        "description": "Comprehensive automated test suite covering unit tests, integration tests, contract compliance tests, Roslyn architectural scanners, localization verification, and non-intrusive agent-desktop live UI automation.",
+        "direct_callers": [
+          "dotnet test",
+          "CI/CD Pipeline",
+          "GSS-Bridge Verification Gates",
+          "Forensic Auditor"
+        ],
+        "direct_callees": [
+          "CoreModels",
+          "CoreContracts",
+          "StorageServices",
+          "CryptoServices",
+          "NetworkGateway",
+          "BusinessDomain",
+          "PresentationViewModels",
+          "PresentationViewsControls",
+          "xUnit",
+          "Moq",
+          "FluentAssertions",
+          "agent-desktop CLI"
+        ],
+        "invariants": [
+          "100% test pass rate",
+          "Zero flaky tests",
+          "Real state verification with zero dummy implementations",
+          "Evidence before assertions always"
+        ]
+      }
+    },
+    "layer_boundary_verification": {
+      "evaluation_result": "PASS",
+      "circular_dependencies_detected": 0,
+      "acyclic_dependency_flow": "PresentationViewsControls -> PresentationViewModels -> BusinessDomain -> [StorageServices, CryptoServices, NetworkGateway] -> CoreContracts -> CoreModels",
+      "layer_isolation_rules": [
+        "CoreModels has 0 outgoing dependencies to any other project layers.",
+        "CoreContracts depends strictly on CoreModels and BCL primitives.",
+        "StorageServices, CryptoServices, and NetworkGateway depend only on CoreModels, CoreContracts, and external BCL/NuGet libraries.",
+        "BusinessDomain coordinates Storage, Crypto, and Network through their respective interface contracts.",
+        "PresentationViewModels depends solely on BusinessDomain and CoreContracts interfaces; strictly isolated from PresentationViewsControls.",
+        "PresentationViewsControls consumes PresentationViewModels via compiled data binding and never mutates lower infrastructure directly.",
+        "TestingHarness observes all layers via explicit test fixtures without circular feedback into product assemblies."
+      ]
+    },
+    "blast_radius_matrix": [
+      {
+        "task_id": "T-001",
+        "name": "Project Setup & Package Configuration",
+        "module": "Infrastructure & Tooling",
+        "upstream_callers": [
+          "All subsequent tasks (T-002 through T-043)"
+        ],
+        "downstream_callees": [
+          ".NET 10 SDK",
+          "NuGet Feeds"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.csproj",
+          "Zenix.Tests.csproj",
+          ".editorconfig"
+        ],
+        "risk_assessment": "Low — Foundation configuration only.",
+        "mitigation": "Target net10.0-windows10.0.26100.0, enforce IDE0065, strict CRLF."
+      },
+      {
+        "task_id": "T-002",
+        "name": "Domain Enumerations & Bitmasks",
+        "module": "Core Models",
+        "upstream_callers": [
+          "T-003",
+          "T-004",
+          "T-005",
+          "T-006",
+          "T-009",
+          "T-010",
+          "T-021",
+          "T-023",
+          "T-024",
+          "T-035"
+        ],
+        "downstream_callees": [
+          "T-001"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Models.Enums"
+        ],
+        "risk_assessment": "Low — Leaf value types.",
+        "mitigation": "Explicit integer values matching spec.md § 3."
+      },
+      {
+        "task_id": "T-003",
+        "name": "User, Contact & Group Domain Records",
+        "module": "Core Models",
+        "upstream_callers": [
+          "T-006",
+          "T-011",
+          "T-028",
+          "T-029",
+          "T-032",
+          "T-038"
+        ],
+        "downstream_callees": [
+          "T-002"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Models.Profiles"
+        ],
+        "risk_assessment": "Low — Pure immutable C# records.",
+        "mitigation": "Init-only properties, value equality semantics."
+      },
+      {
+        "task_id": "T-004",
+        "name": "ChatMessage & 14 Payload Records",
+        "module": "Core Models",
+        "upstream_callers": [
+          "T-006",
+          "T-010",
+          "T-024",
+          "T-025",
+          "T-026",
+          "T-027",
+          "T-029",
+          "T-033",
+          "T-035",
+          "T-036",
+          "T-039"
+        ],
+        "downstream_callees": [
+          "T-002"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Models.Messages"
+        ],
+        "risk_assessment": "Medium — Central messaging aggregate.",
+        "mitigation": "Polymorphic JSON discriminator attributes, comprehensive serialization tests."
+      },
+      {
+        "task_id": "T-005",
+        "name": "Session, Network & Wire DTO Records",
+        "module": "Core Models & DTOs",
+        "upstream_callers": [
+          "T-006",
+          "T-019",
+          "T-020",
+          "T-021",
+          "T-022",
+          "T-023"
+        ],
+        "downstream_callees": [
+          "T-002"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Models.Dto"
+        ],
+        "risk_assessment": "Low — Wire transfer contracts.",
+        "mitigation": "Strict property mapping against Zalo PC 26.10 API JSON."
+      },
+      {
+        "task_id": "T-006",
+        "name": "Core Service Contracts & Interfaces",
+        "module": "Architecture & DI Contracts",
+        "upstream_callers": [
+          "T-008",
+          "T-012",
+          "T-014",
+          "T-015",
+          "T-019",
+          "T-020",
+          "T-021",
+          "T-030",
+          "T-040"
+        ],
+        "downstream_callees": [
+          "T-003",
+          "T-004",
+          "T-005"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts"
+        ],
+        "risk_assessment": "High — Core architectural decoupling boundary.",
+        "mitigation": "100% CancellationToken parameters, zero UI types, full XML documentation."
+      },
+      {
+        "task_id": "T-007",
+        "name": "Localization Resource Files & LocaleKeys",
+        "module": "Localization & i18n",
+        "upstream_callers": [
+          "T-036",
+          "T-037",
+          "T-038",
+          "T-039",
+          "T-042"
+        ],
+        "downstream_callees": [
+          "T-001"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Strings",
+          "TranslationSource"
+        ],
+        "risk_assessment": "Low — Key-value resource dictionaries.",
+        "mitigation": "Tri-lingual key parity tests (String.resx, String.en.resx, String.vi.resx), UTF-8 without BOM."
+      },
+      {
+        "task_id": "T-008",
+        "name": "SQLite DAL 4.0 Core Engine & Pragmas",
+        "module": "Storage & Persistence",
+        "upstream_callers": [
+          "T-009",
+          "T-013"
+        ],
+        "downstream_callees": [
+          "T-006",
+          "Microsoft.Data.Sqlite"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Storage.ZaloSqliteDalService"
+        ],
+        "risk_assessment": "Medium — Database engine setup and connection pooling.",
+        "mitigation": "Mandatory WAL pragma, SemaphoreSlim write serialization, safe UNIQUE collision handling."
+      },
+      {
+        "task_id": "T-009",
+        "name": "SQLite Schema Migrator (v400) & DDL",
+        "module": "Storage & Persistence",
+        "upstream_callers": [
+          "T-010",
+          "T-011"
+        ],
+        "downstream_callees": [
+          "T-008"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Storage.ZaloSqliteMigrator"
+        ],
+        "risk_assessment": "Medium — Database table schema and index definitions.",
+        "mitigation": "Schema verification via sqlite_master, PRAGMA user_version = 400 assertion."
+      },
+      {
+        "task_id": "T-010",
+        "name": "Conversation & Message SQLite Repositories",
+        "module": "Storage Repositories",
+        "upstream_callers": [
+          "T-013"
+        ],
+        "downstream_callees": [
+          "T-009",
+          "T-004"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Storage.Repositories.MessageRepository"
+        ],
+        "risk_assessment": "Medium — High-throughput message persistence.",
+        "mitigation": "Stable sort (timestamp DESC, offset DESC), parameterized SQL, pagination latency <= 1.5ms."
+      },
+      {
+        "task_id": "T-011",
+        "name": "Contact & Group SQLite Repositories",
+        "module": "Storage Repositories",
+        "upstream_callers": [
+          "T-013"
+        ],
+        "downstream_callees": [
+          "T-009",
+          "T-003"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Storage.Repositories.ContactRepository"
+        ],
+        "risk_assessment": "Low — Contact book and group member persistence.",
+        "mitigation": "Upsert handling, index coverage on alias and effective name."
+      },
+      {
+        "task_id": "T-012",
+        "name": "Credential Storage & Token DPAPI Encryption",
+        "module": "Security & Credential Storage",
+        "upstream_callers": [
+          "T-013",
+          "T-023"
+        ],
+        "downstream_callees": [
+          "T-006",
+          "PasswordEncryptor"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Storage.ZaloCredentialStorage"
+        ],
+        "risk_assessment": "High — Security critical credential protection.",
+        "mitigation": "Windows DPAPI / AES-256-GCM, zero plaintext in logs, scoped session cookies."
+      },
+      {
+        "task_id": "T-013",
+        "name": "ZaloStorageService Facade Implementation",
+        "module": "Storage Services",
+        "upstream_callers": [
+          "T-024",
+          "T-028",
+          "T-029",
+          "T-040"
+        ],
+        "downstream_callees": [
+          "T-010",
+          "T-011",
+          "T-012"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IZaloStorageService"
+        ],
+        "risk_assessment": "Medium — Consolidated storage facade.",
+        "mitigation": "Transactional aggregation, unit tests verifying full sync and account wipe."
+      },
+      {
+        "task_id": "T-014",
+        "name": "AES-256-CBC & zcid Hex Primitives",
+        "module": "Cryptography",
+        "upstream_callers": [
+          "T-016",
+          "T-023",
+          "T-024"
+        ],
+        "downstream_callees": [
+          "T-006",
+          "System.Security.Cryptography.Aes"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Cryptography.ZaloCryptoService"
+        ],
+        "risk_assessment": "High — Cryptographic parameter obfuscation and zcid computation.",
+        "mitigation": "Exact test vector parity with zalo-swift-re RuntimeTests.swift."
+      },
+      {
+        "task_id": "T-015",
+        "name": "Device Linking Envelope & Media De-noising",
+        "module": "Cryptography",
+        "upstream_callers": [
+          "T-027"
+        ],
+        "downstream_callees": [
+          "T-006",
+          "System.Security.Cryptography.HMACSHA256"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Cryptography.MediaDenoiseHelper"
+        ],
+        "risk_assessment": "Medium — Device link envelope format and anti-scraping de-noising.",
+        "mitigation": "Constant-time HMAC check via CryptographicOperations.FixedTimeEquals, XOR 147 unpack tests."
+      },
+      {
+        "task_id": "T-016",
+        "name": "Curve25519 & X3DH Pre-Key Service",
+        "module": "Cryptography & Signal Protocol",
+        "upstream_callers": [
+          "T-017"
+        ],
+        "downstream_callees": [
+          "T-014"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Cryptography.SignalX3dhService"
+        ],
+        "risk_assessment": "High — Key agreement mathematics.",
+        "mitigation": "Montgomery ladder implementations, Alice/Bob shared secret equality verification."
+      },
+      {
+        "task_id": "T-017",
+        "name": "Double Ratchet & Message Key Derivation",
+        "module": "Cryptography & Signal Protocol",
+        "upstream_callers": [
+          "T-018"
+        ],
+        "downstream_callees": [
+          "T-016"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Cryptography.SignalDoubleRatchetService"
+        ],
+        "risk_assessment": "High — E2EE forward secrecy and ratchet state management.",
+        "mitigation": "100-step simulation tests, skipped message keys table with TTL."
+      },
+      {
+        "task_id": "T-018",
+        "name": "Signal E2EE Service & Safety Number Formatter",
+        "module": "Cryptography & Signal Protocol",
+        "upstream_callers": [
+          "T-024",
+          "T-029",
+          "T-034"
+        ],
+        "downstream_callees": [
+          "T-017"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Cryptography.SignalE2eeService"
+        ],
+        "risk_assessment": "Medium — E2EE message enveloper and fingerprint formatter.",
+        "mitigation": "60-digit safety number calculation test in <= 2.0ms, Type 1/Type 3 whisper messages."
+      },
+      {
+        "task_id": "T-019",
+        "name": "Chromium 108 Wire Fingerprint Handler",
+        "module": "Network & REST Transport",
+        "upstream_callers": [
+          "T-022",
+          "T-023",
+          "T-027",
+          "T-028"
+        ],
+        "downstream_callees": [
+          "T-006",
+          "System.Net.Http.DelegatingHandler"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Network.ZaloWireFingerprintHandler"
+        ],
+        "risk_assessment": "Medium — Anti-detection wire headers.",
+        "mitigation": "Mock HTTP pipeline inspection asserting exact sec-ch-ua and stripped Origin/Referer."
+      },
+      {
+        "task_id": "T-020",
+        "name": "DNS-over-HTTPS (DoH) Fallback Resolver",
+        "module": "Network & DNS",
+        "upstream_callers": [
+          "T-022"
+        ],
+        "downstream_callees": [
+          "T-006",
+          "System.Net.Http.HttpClient"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Network.DohResolverService"
+        ],
+        "risk_assessment": "Low — Fallback DNS resolution mechanism.",
+        "mitigation": "Google DoH HTTPS query parsing, TTL memory caching."
+      },
+      {
+        "task_id": "T-021",
+        "name": "Binary WebSocket 4-Byte Framing Engine",
+        "module": "Realtime Protocol & Binary Framing",
+        "upstream_callers": [
+          "T-022"
+        ],
+        "downstream_callees": [
+          "T-006",
+          "ReadOnlySpan<byte>"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Network.ZaloGatewayFraming"
+        ],
+        "risk_assessment": "High — High-throughput binary protocol framing.",
+        "mitigation": "Benchmark tests asserting 0 bytes heap allocations for 4-byte header decode."
+      },
+      {
+        "task_id": "T-022",
+        "name": "Gateway Duplex WebSocket Service",
+        "module": "Realtime Protocol",
+        "upstream_callers": [
+          "T-023",
+          "T-024",
+          "T-029"
+        ],
+        "downstream_callees": [
+          "T-019",
+          "T-020",
+          "T-021",
+          "System.Net.WebSockets.ClientWebSocket"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IZaloGatewayService"
+        ],
+        "risk_assessment": "High — Persistent bidirectional socket connection.",
+        "mitigation": "Exponential backoff reconnect with jitter, 30s heartbeat ping, thread-safe Channel<T> queue."
+      },
+      {
+        "task_id": "T-023",
+        "name": "QR Authentication & Session State Machine",
+        "module": "Authentication & Session Lifecycle",
+        "upstream_callers": [
+          "T-029",
+          "T-031"
+        ],
+        "downstream_callees": [
+          "T-012",
+          "T-014",
+          "T-019",
+          "T-022"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IZaloAuthService"
+        ],
+        "risk_assessment": "High — Login flow, QR generation, polling, and kickout listener.",
+        "mitigation": "State machine transition tests, automatic QR2 fallback handling for error code -20."
+      },
+      {
+        "task_id": "T-024",
+        "name": "Core Messaging Engine & Delivery Pipeline",
+        "module": "Messaging Engine",
+        "upstream_callers": [
+          "T-025",
+          "T-026",
+          "T-029"
+        ],
+        "downstream_callees": [
+          "T-013",
+          "T-018",
+          "T-022"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IZaloMessageService"
+        ],
+        "risk_assessment": "High — Core message dispatch, receipt, and delivery states.",
+        "mitigation": "Lifecycle state progression tests (10 -> 1 -> 2 -> 3), mention offset alignment tests."
+      },
+      {
+        "task_id": "T-025",
+        "name": "Message Recall, Soft-Delete & Undo Controller",
+        "module": "Messaging Engine",
+        "upstream_callers": [
+          "T-029",
+          "T-033"
+        ],
+        "downstream_callees": [
+          "T-024"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Services.ZaloMessageLifecycleService"
+        ],
+        "risk_assessment": "Medium — Message revocation and deletion undo grace periods.",
+        "mitigation": "Recall payload mutation verification, timer expiration test for soft-delete."
+      },
+      {
+        "task_id": "T-026",
+        "name": "Emoji Reactions & Interaction Tracking",
+        "module": "Messaging Engine",
+        "upstream_callers": [
+          "T-029",
+          "T-033"
+        ],
+        "downstream_callees": [
+          "T-024"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Services.ZaloReactionService"
+        ],
+        "risk_assessment": "Low — Reaction tally and stacking logic.",
+        "mitigation": "Stacking count unit tests confirming successive user clicks increment count."
+      },
+      {
+        "task_id": "T-027",
+        "name": "Media Resolver, Chunked Upload & ISO-BMFF Poster",
+        "module": "Media Services",
+        "upstream_callers": [
+          "T-029",
+          "T-033"
+        ],
+        "downstream_callees": [
+          "T-015",
+          "T-019"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IZaloMediaService"
+        ],
+        "risk_assessment": "Medium — Multipart uploads, LIFO download throttling, video posters.",
+        "mitigation": "Multipart boundary regex validation, max 3 concurrent downloads test, ISO-BMFF parser."
+      },
+      {
+        "task_id": "T-028",
+        "name": "Contact & Group Administration Service",
+        "module": "Domain Services",
+        "upstream_callers": [
+          "T-029",
+          "T-032"
+        ],
+        "downstream_callees": [
+          "T-013",
+          "T-019"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IZaloContactService"
+        ],
+        "risk_assessment": "Medium — Contact book sync and Vietnamese diacritic search.",
+        "mitigation": "Vietnamese search tests matching 'Nguyen' to 'Nguyễn', group administration unit tests."
+      },
+      {
+        "task_id": "T-029",
+        "name": "Master ZaloClient Coordinator",
+        "module": "Master Domain Coordinator",
+        "upstream_callers": [
+          "T-032",
+          "T-033",
+          "T-034",
+          "T-040"
+        ],
+        "downstream_callees": [
+          "T-023",
+          "T-024",
+          "T-025",
+          "T-026",
+          "T-027",
+          "T-028"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IZaloClient"
+        ],
+        "risk_assessment": "High — Central coordinator aggregate.",
+        "mitigation": "Lifecycle orchestration integration tests, unified event dispatches, clean IAsyncDisposable."
+      },
+      {
+        "task_id": "T-030",
+        "name": "Abstracted UI Dialog & File Picker Services",
+        "module": "Presentation Infrastructure",
+        "upstream_callers": [
+          "T-031",
+          "T-032",
+          "T-033",
+          "T-034",
+          "T-040"
+        ],
+        "downstream_callees": [
+          "T-006",
+          "ContentDialog",
+          "FileOpenPicker"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IDialogService",
+          "Zenix.Core.Zalo.Contracts.IFilePickerService"
+        ],
+        "risk_assessment": "Medium — Decoupling ViewModels from WinUI 3 UIElement visual trees.",
+        "mitigation": "Mock dialog/file picker test fixtures allowing headless ViewModel unit testing."
+      },
+      {
+        "task_id": "T-031",
+        "name": "QR Login & Auth ViewModel",
+        "module": "ViewModels",
+        "upstream_callers": [
+          "T-037",
+          "T-040"
+        ],
+        "downstream_callees": [
+          "T-023",
+          "T-030",
+          "CommunityToolkit.Mvvm"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.ViewModels.Zalo.ZaloLoginViewModel"
+        ],
+        "risk_assessment": "Medium — Login screen state and commands.",
+        "mitigation": "Roslyn analyzer asserting zero UI types in ViewModels, DispatcherQueue marshalling tests."
+      },
+      {
+        "task_id": "T-032",
+        "name": "Conversation List & Sidebar ViewModel",
+        "module": "ViewModels",
+        "upstream_callers": [
+          "T-033",
+          "T-038",
+          "T-040"
+        ],
+        "downstream_callees": [
+          "T-029",
+          "T-030",
+          "CommunityToolkit.Mvvm"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IConversationListViewModel"
+        ],
+        "risk_assessment": "Medium — Thread list filtering, search, and selection.",
+        "mitigation": "ObservableCollection filter benchmarks, unread count aggregation tests."
+      },
+      {
+        "task_id": "T-033",
+        "name": "Active Chat & Message Stream ViewModel",
+        "module": "ViewModels",
+        "upstream_callers": [
+          "T-039",
+          "T-040"
+        ],
+        "downstream_callees": [
+          "T-029",
+          "T-030",
+          "T-032",
+          "CommunityToolkit.Mvvm"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Core.Zalo.Contracts.IChatViewModel"
+        ],
+        "risk_assessment": "High — Core chat interaction and message streaming.",
+        "mitigation": "Optimistic send status progression, reply/quote attachment tests, zero UI references."
+      },
+      {
+        "task_id": "T-034",
+        "name": "Settings & Security ViewModel",
+        "module": "ViewModels",
+        "upstream_callers": [
+          "T-040"
+        ],
+        "downstream_callees": [
+          "T-029",
+          "T-030",
+          "CommunityToolkit.Mvvm"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.ViewModels.Zalo.ZaloSettingsViewModel"
+        ],
+        "risk_assessment": "Low — App settings, safety numbers, cache clearance.",
+        "mitigation": "Cache calculation and clearance command unit tests."
+      },
+      {
+        "task_id": "T-035",
+        "name": "Value Converters & Template Selectors",
+        "module": "XAML Presentation Controls",
+        "upstream_callers": [
+          "T-036",
+          "T-039"
+        ],
+        "downstream_callees": [
+          "T-002",
+          "T-004",
+          "Microsoft.UI.Xaml.Data.IValueConverter"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Converters.Zalo"
+        ],
+        "risk_assessment": "Low — Presentation format converters.",
+        "mitigation": "Converter boundary unit tests, 14-subtype template selector tests."
+      },
+      {
+        "task_id": "T-036",
+        "name": "Message Bubble XAML DataTemplates (14 Subtypes)",
+        "module": "XAML Controls & Templates",
+        "upstream_callers": [
+          "T-039"
+        ],
+        "downstream_callees": [
+          "T-007",
+          "T-035",
+          "ResourceDictionary"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Views.Zalo.Templates.MessageBubbleTemplates"
+        ],
+        "risk_assessment": "Medium — Complex polymorphic XAML rendering.",
+        "mitigation": "100% {x:Bind} compiled binding, zero raw strings, pure XAML MenuFlyout."
+      },
+      {
+        "task_id": "T-037",
+        "name": "QR Authentication View (ZaloLoginPage.xaml)",
+        "module": "WinUI 3 Views",
+        "upstream_callers": [
+          "T-040",
+          "T-043"
+        ],
+        "downstream_callees": [
+          "T-007",
+          "T-031",
+          "Page"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Views.Zalo.ZaloLoginPage"
+        ],
+        "risk_assessment": "Medium — User-facing login view.",
+        "mitigation": "Zero code-behind logic, compiled {x:Bind}, dynamic localization binding."
+      },
+      {
+        "task_id": "T-038",
+        "name": "Conversation Sidebar View (ZaloConversationListView.xaml)",
+        "module": "WinUI 3 Views",
+        "upstream_callers": [
+          "T-039",
+          "T-040",
+          "T-043"
+        ],
+        "downstream_callees": [
+          "T-007",
+          "T-032",
+          "ListView"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Views.Zalo.ZaloConversationListView"
+        ],
+        "risk_assessment": "Medium — Sidebar thread list rendering.",
+        "mitigation": "UI virtualization active for 1,000+ items, compiled {x:Bind}, XAML context menus."
+      },
+      {
+        "task_id": "T-039",
+        "name": "Main Chat Shell & Active Viewport (ZaloChatPage.xaml)",
+        "module": "WinUI 3 Views",
+        "upstream_callers": [
+          "T-040",
+          "T-043"
+        ],
+        "downstream_callees": [
+          "T-007",
+          "T-033",
+          "T-036",
+          "T-038",
+          "Page"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Views.Zalo.ZaloChatPage"
+        ],
+        "risk_assessment": "High — Primary chat experience viewport.",
+        "mitigation": "Zero DOM manipulation, master-detail layout, 60 FPS ListView render."
+      },
+      {
+        "task_id": "T-040",
+        "name": "DI Container Registration & Navigation Wiring",
+        "module": "Composition Root & DI Wiring",
+        "upstream_callers": [
+          "T-041",
+          "T-042",
+          "T-043"
+        ],
+        "downstream_callees": [
+          "T-029",
+          "T-031",
+          "T-032",
+          "T-033",
+          "T-034",
+          "T-037",
+          "T-038",
+          "T-039"
+        ],
+        "impacted_boundary_components": [
+          "Zenix.Configuration.ZaloServiceRegistration",
+          "ApplicationHostService"
+        ],
+        "risk_assessment": "High — Composition root of the application.",
+        "mitigation": "DependencyInjectionContainerTests asserting all services and ViewModels activate without error."
+      },
+      {
+        "task_id": "T-041",
+        "name": "Complete Unit & Integration Test Suite Execution",
+        "module": "Automated Testing",
+        "upstream_callers": [
+          "Gate 7 Release Convergence"
+        ],
+        "downstream_callees": [
+          "T-040",
+          "All Zalo Services & Models"
+        ],
+        "impacted_boundary_components": [
+          "tests/Zenix.Tests/Zalo/**/*.cs"
+        ],
+        "risk_assessment": "High — Quality verification of all layers.",
+        "mitigation": "100% test pass rate across all fixtures, zero regressions."
+      },
+      {
+        "task_id": "T-042",
+        "name": "Dynamic Localization Verification Test Suite",
+        "module": "Localization & i18n",
+        "upstream_callers": [
+          "Gate 7 Release Convergence"
+        ],
+        "downstream_callees": [
+          "T-007",
+          "T-040"
+        ],
+        "impacted_boundary_components": [
+          "tests/Zenix.Tests/Zalo/LocalizationVerificationTests.cs"
+        ],
+        "risk_assessment": "Medium — Multilingual completeness and invariant compliance.",
+        "mitigation": "Automated AST scan asserting zero raw literals in XAML and 100% resx key symmetry."
+      },
+      {
+        "task_id": "T-043",
+        "name": "Live Desktop UI Automation via Agent-Desktop",
+        "module": "UI Automation & Visual Verification",
+        "upstream_callers": [
+          "Gate 7 Release Convergence"
+        ],
+        "downstream_callees": [
+          "T-040",
+          "agent-desktop CLI",
+          "bridge.py"
+        ],
+        "impacted_boundary_components": [
+          ".agents/artifacts/zalo_live_ui_verification.png"
+        ],
+        "risk_assessment": "High — Live end-to-end desktop experience verification.",
+        "mitigation": "Non-intrusive UIA tree validation in WinSta0\\default, full-resolution screenshot artifact."
+      }
+    ]
+  },
+  "execution_waves": [
+    {
+      "wave_number": 1,
+      "wave_id": "WAVE_01",
+      "name": "Foundation & Contracts Setup",
+      "focus_area": "Solution configuration, foundational enums, immutable domain records, DTOs, service interface contracts, and dynamic localization resources.",
+      "prerequisites": [],
+      "task_ids": [
+        "T-001",
+        "T-002",
+        "T-003",
+        "T-004",
+        "T-005",
+        "T-007",
+        "T-006"
+      ],
+      "parallel_tasks": [
+        "T-003",
+        "T-004",
+        "T-005",
+        "T-007"
+      ],
+      "sequential_tasks": [
+        "T-001",
+        "T-002",
+        "T-006"
+      ],
+      "parallel_subagent_capacity": 4,
+      "target_files_owned": [
+        "Zenix/Zenix.csproj",
+        "tests/Zenix.Tests/Zenix.Tests.csproj",
+        ".editorconfig",
+        "Zenix/Core/Zalo/Models/Enums/MessageDeliveryStatus.cs",
+        "Zenix/Core/Zalo/Models/Enums/MessageKind.cs",
+        "Zenix/Core/Zalo/Models/Enums/ChatConversationType.cs",
+        "Zenix/Core/Zalo/Models/Enums/GroupMemberRole.cs",
+        "Zenix/Core/Zalo/Models/Enums/QrScanState.cs",
+        "Zenix/Core/Zalo/Models/Enums/NetworkConnectionState.cs",
+        "Zenix/Core/Zalo/Models/Profiles/UserProfile.cs",
+        "Zenix/Core/Zalo/Models/Profiles/UserContact.cs",
+        "Zenix/Core/Zalo/Models/Profiles/GroupProfile.cs",
+        "Zenix/Core/Zalo/Models/Profiles/GroupMember.cs",
+        "Zenix/Core/Zalo/Helpers/ZaloStringHelper.cs",
+        "Zenix/Core/Zalo/Models/Messages/ChatMessage.cs",
+        "Zenix/Core/Zalo/Models/Messages/ChatMessagePayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/TextPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/PhotoPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/VideoPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/AudioVoicePayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/FileAttachmentPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/StickerPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/LocationPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/ContactCardPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/PollPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/UndoDeletePayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/RecalledPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/GroupSystemEventPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/LinkPreviewPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/Payloads/CallLogPayload.cs",
+        "Zenix/Core/Zalo/Models/Messages/MentionSpan.cs",
+        "Zenix/Core/Zalo/Models/Messages/MessageReaction.cs",
+        "Zenix/Core/Zalo/Models/Messages/QuotedMessageSummary.cs",
+        "Zenix/Core/Zalo/Models/Dto/QrCodeTokenResponse.cs",
+        "Zenix/Core/Zalo/Models/Dto/QrWaitScanResponse.cs",
+        "Zenix/Core/Zalo/Models/Dto/LoginSessionCookie.cs",
+        "Zenix/Core/Zalo/Models/Dto/GatewayHandshakePayload.cs",
+        "Zenix/Core/Zalo/Models/Dto/DohResolutionResult.cs",
+        "Zenix/Core/Zalo/Models/Dto/ZaloApiResponse.cs",
+        "Zenix/Core/Zalo/Contracts/IZaloClient.cs",
+        "Zenix/Core/Zalo/Contracts/IZaloAuthService.cs",
+        "Zenix/Core/Zalo/Contracts/IZaloGatewayService.cs",
+        "Zenix/Core/Zalo/Contracts/IZaloCryptoService.cs",
+        "Zenix/Core/Zalo/Contracts/IZaloMessageService.cs",
+        "Zenix/Core/Zalo/Contracts/IZaloMediaService.cs",
+        "Zenix/Core/Zalo/Contracts/IZaloContactService.cs",
+        "Zenix/Core/Zalo/Contracts/IZaloStorageService.cs",
+        "Zenix/Core/Zalo/Contracts/IFilePickerService.cs",
+        "Zenix/Core/Zalo/Contracts/IDialogService.cs",
+        "Zenix/Core/Zalo/Contracts/IChatViewModel.cs",
+        "Zenix/Core/Zalo/Contracts/IConversationListViewModel.cs",
+        "Zenix/Strings/String.resx",
+        "Zenix/Strings/String.en.resx",
+        "Zenix/Strings/String.vi.resx",
+        "Zenix/Strings/LocaleKeys.cs"
+      ],
+      "verification_gate_exit": "GATE_01"
+    },
+    {
+      "wave_number": 2,
+      "wave_id": "WAVE_02",
+      "name": "Storage & Cryptography Core",
+      "focus_area": "SQLite DAL 4.0 engine, schema migrator (v400), repositories, DPAPI credential storage, AES-256-CBC zcid hex, keychain linking envelopes, X3DH pre-keys, Double Ratchet, and Signal E2EE.",
+      "prerequisites": [
+        "WAVE_01"
+      ],
+      "task_ids": [
+        "T-008",
+        "T-009",
+        "T-010",
+        "T-011",
+        "T-012",
+        "T-013",
+        "T-014",
+        "T-015",
+        "T-016",
+        "T-017",
+        "T-018"
+      ],
+      "parallel_tasks": [
+        "T-010",
+        "T-011",
+        "T-012",
+        "T-014",
+        "T-015",
+        "T-016",
+        "T-017"
+      ],
+      "sequential_tasks": [
+        "T-008",
+        "T-009",
+        "T-013",
+        "T-018"
+      ],
+      "parallel_subagent_capacity": 7,
+      "target_files_owned": [
+        "Zenix/Core/Zalo/Storage/ZaloSqliteDalService.cs",
+        "Zenix/Core/Zalo/Storage/SqliteExecutionResult.cs",
+        "Zenix/Core/Zalo/Storage/ZaloSqliteMigrator.cs",
+        "Zenix/Core/Zalo/Storage/Scripts/Schema_v400.sql",
+        "Zenix/Core/Zalo/Storage/Repositories/ConversationRepository.cs",
+        "Zenix/Core/Zalo/Storage/Repositories/MessageRepository.cs",
+        "Zenix/Core/Zalo/Storage/Repositories/FailedDraftStore.cs",
+        "Zenix/Core/Zalo/Storage/Repositories/ContactRepository.cs",
+        "Zenix/Core/Zalo/Storage/Repositories/GroupRepository.cs",
+        "Zenix/Core/Zalo/Storage/ZaloCredentialStorage.cs",
+        "Zenix/Core/Zalo/Storage/ZaloStorageService.cs",
+        "Zenix/Core/Zalo/Cryptography/ZaloCryptoService.cs",
+        "Zenix/Core/Zalo/Cryptography/ZaloCryptoService.Keychain.cs",
+        "Zenix/Core/Zalo/Cryptography/MediaDenoiseHelper.cs",
+        "Zenix/Core/Zalo/Cryptography/SignalX3dhService.cs",
+        "Zenix/Core/Zalo/Cryptography/Curve25519Helper.cs",
+        "Zenix/Core/Zalo/Cryptography/SignalDoubleRatchetService.cs",
+        "Zenix/Core/Zalo/Cryptography/DoubleRatchetSessionState.cs",
+        "Zenix/Core/Zalo/Cryptography/SignalE2eeService.cs",
+        "Zenix/Core/Zalo/Cryptography/SafetyNumberFormatter.cs"
+      ],
+      "verification_gate_exit": "GATE_02A_AND_02B"
+    },
+    {
+      "wave_number": 3,
+      "wave_id": "WAVE_03",
+      "name": "Network Transport & Authentication",
+      "focus_area": "Chromium 108 wire fingerprint HTTP handler, Google DoH fallback resolver, 4-byte binary framing engine, ClientWebSocket duplex gateway, and QR state machine.",
+      "prerequisites": [
+        "WAVE_01",
+        "WAVE_02"
+      ],
+      "task_ids": [
+        "T-019",
+        "T-020",
+        "T-021",
+        "T-022",
+        "T-023"
+      ],
+      "parallel_tasks": [
+        "T-019",
+        "T-020",
+        "T-022"
+      ],
+      "sequential_tasks": [
+        "T-021",
+        "T-023"
+      ],
+      "parallel_subagent_capacity": 3,
+      "target_files_owned": [
+        "Zenix/Core/Zalo/Network/ZaloWireFingerprintHandler.cs",
+        "Zenix/Core/Zalo/Network/DohResolverService.cs",
+        "Zenix/Core/Zalo/Network/ZaloGatewayFraming.cs",
+        "Zenix/Core/Zalo/Network/GatewayPacket.cs",
+        "Zenix/Core/Zalo/Network/ZaloGatewayService.cs",
+        "Zenix/Core/Zalo/Services/ZaloAuthService.cs"
+      ],
+      "verification_gate_exit": "GATE_03"
+    },
+    {
+      "wave_number": 4,
+      "wave_id": "WAVE_04",
+      "name": "Business Logic & Messaging Engine",
+      "focus_area": "Message transmission pipeline (10 -> 1 -> 2 -> 3), mention normalization, message recall, soft-delete undo controllers, emoji reactions, chunked media uploads, ISO-BMFF poster extraction, contact administration, and master ZaloClient.",
+      "prerequisites": [
+        "WAVE_02",
+        "WAVE_03"
+      ],
+      "task_ids": [
+        "T-024",
+        "T-025",
+        "T-026",
+        "T-027",
+        "T-028",
+        "T-029"
+      ],
+      "parallel_tasks": [
+        "T-025",
+        "T-026",
+        "T-027",
+        "T-028"
+      ],
+      "sequential_tasks": [
+        "T-024",
+        "T-029"
+      ],
+      "parallel_subagent_capacity": 4,
+      "target_files_owned": [
+        "Zenix/Core/Zalo/Services/ZaloMessageService.cs",
+        "Zenix/Core/Zalo/Helpers/MentionParser.cs",
+        "Zenix/Core/Zalo/Services/ZaloMessageLifecycleService.cs",
+        "Zenix/Core/Zalo/Services/ZaloReactionService.cs",
+        "Zenix/Core/Zalo/Services/ZaloMediaService.cs",
+        "Zenix/Core/Zalo/Helpers/IsoBmffDetector.cs",
+        "Zenix/Core/Zalo/Services/ZaloContactService.cs",
+        "Zenix/Core/Zalo/Helpers/VietnameseSearchHelper.cs",
+        "Zenix/Core/Zalo/Services/ZaloClient.cs"
+      ],
+      "verification_gate_exit": "GATE_04"
+    },
+    {
+      "wave_number": 5,
+      "wave_id": "WAVE_05",
+      "name": "Clean MVVM UI-Agnostic ViewModels",
+      "focus_area": "Abstracted dialog and file picker services, QR login ViewModel, conversation list ViewModel, active chat stream ViewModel, and settings ViewModel. 100% UI-agnostic with DispatcherQueue marshalling.",
+      "prerequisites": [
+        "WAVE_01",
+        "WAVE_04"
+      ],
+      "task_ids": [
+        "T-030",
+        "T-031",
+        "T-032",
+        "T-033",
+        "T-034"
+      ],
+      "parallel_tasks": [
+        "T-031",
+        "T-032",
+        "T-034"
+      ],
+      "sequential_tasks": [
+        "T-030",
+        "T-033"
+      ],
+      "parallel_subagent_capacity": 3,
+      "target_files_owned": [
+        "Zenix/Services/WinUIDialogService.cs",
+        "Zenix/Services/WinUIFilePickerService.cs",
+        "Zenix/ViewModels/Zalo/ZaloLoginViewModel.cs",
+        "Zenix/ViewModels/Zalo/ZaloConversationListViewModel.cs",
+        "Zenix/ViewModels/Zalo/ConversationSummaryItemViewModel.cs",
+        "Zenix/ViewModels/Zalo/ZaloChatViewModel.cs",
+        "Zenix/ViewModels/Zalo/ChatMessageItemViewModel.cs",
+        "Zenix/ViewModels/Zalo/ZaloSettingsViewModel.cs"
+      ],
+      "verification_gate_exit": "GATE_05"
+    },
+    {
+      "wave_number": 6,
+      "wave_id": "WAVE_06",
+      "name": "WinUI 3 XAML Views & DataTemplates",
+      "focus_area": "WinUI 3 value converters, 14-subtype message bubble XAML DataTemplates, QR login page, conversation list view, and main chat shell page. Compiled {x:Bind}, zero code-behind visual manipulation, dynamic i18n.",
+      "prerequisites": [
+        "WAVE_01",
+        "WAVE_05"
+      ],
+      "task_ids": [
+        "T-035",
+        "T-036",
+        "T-037",
+        "T-038",
+        "T-039"
+      ],
+      "parallel_tasks": [
+        "T-035",
+        "T-037",
+        "T-038"
+      ],
+      "sequential_tasks": [
+        "T-036",
+        "T-039"
+      ],
+      "parallel_subagent_capacity": 3,
+      "target_files_owned": [
+        "Zenix/Converters/Zalo/DeliveryStatusToIconConverter.cs",
+        "Zenix/Converters/Zalo/TimestampToRelativeStringConverter.cs",
+        "Zenix/Converters/Zalo/MessageBubbleTemplateSelector.cs",
+        "Zenix/Converters/Zalo/ReactionCountConverter.cs",
+        "Zenix/Converters/Zalo/InitialsAvatarColorConverter.cs",
+        "Zenix/Views/Zalo/Templates/MessageBubbleTemplates.xaml",
+        "Zenix/Views/Zalo/ZaloLoginPage.xaml",
+        "Zenix/Views/Zalo/ZaloLoginPage.xaml.cs",
+        "Zenix/Views/Zalo/ZaloConversationListView.xaml",
+        "Zenix/Views/Zalo/ZaloConversationListView.xaml.cs",
+        "Zenix/Views/Zalo/ZaloChatPage.xaml",
+        "Zenix/Views/Zalo/ZaloChatPage.xaml.cs"
+      ],
+      "verification_gate_exit": "GATE_06"
+    },
+    {
+      "wave_number": 7,
+      "wave_id": "WAVE_07",
+      "name": "Composition Root & Dependency Injection",
+      "focus_area": "DI container service registration (Singleton/Transient), NavigationService routing, ApplicationHostService initialization, and end-to-end container resolution.",
+      "prerequisites": [
+        "WAVE_05",
+        "WAVE_06"
+      ],
+      "task_ids": [
+        "T-040"
+      ],
+      "parallel_tasks": [],
+      "sequential_tasks": [
+        "T-040"
+      ],
+      "parallel_subagent_capacity": 1,
+      "target_files_owned": [
+        "Zenix/Configuration/ZaloServiceRegistration.cs",
+        "Zenix/Services/ApplicationHostService.cs",
+        "Zenix/Services/NavigationService.cs"
+      ],
+      "verification_gate_exit": "GATE_06_INTEGRATED"
+    },
+    {
+      "wave_number": 8,
+      "wave_id": "WAVE_08",
+      "name": "System Verification, Localization & Agent Desktop Automation",
+      "focus_area": "Full unit and integration test suite execution, dynamic localization completeness audit, and non-intrusive live desktop UI automation in WinSta0\\default with high-resolution screenshot capture.",
+      "prerequisites": [
+        "WAVE_07"
+      ],
+      "task_ids": [
+        "T-041",
+        "T-042",
+        "T-043"
+      ],
+      "parallel_tasks": [
+        "T-041",
+        "T-042"
+      ],
+      "sequential_tasks": [
+        "T-043"
+      ],
+      "parallel_subagent_capacity": 2,
+      "target_files_owned": [
+        "tests/Zenix.Tests/Zalo/**/*.cs",
+        "tests/Zenix.Tests/Zalo/LocalizationVerificationTests.cs",
+        ".agents/artifacts/zalo_live_ui_verification.png"
+      ],
+      "verification_gate_exit": "GATE_07"
+    }
+  ],
+  "superpowers_tdd_discipline": {
+    "execution_protocol": {
+      "name": "Red-Green-Refactor Protocol",
+      "red_phase": {
+        "rule": "Every subagent MUST write a failing test first before modifying production source code.",
+        "verification": "Execute the targeted test command and assert that it fails with the expected exception/failure. Record failing evidence in progress log."
+      },
+      "green_phase": {
+        "rule": "Write only the minimal genuine implementation code required to satisfy the failing test. No dummy or hardcoded facades.",
+        "verification": "Re-run the targeted test command and confirm green status."
+      },
+      "refactor_phase": {
+        "rule": "Refactor and harden: enforce Roslyn IDE0065 using directives outside namespace, 100% XML doc comments in technical American English, UTF-8 without BOM, and Windows CRLF line endings.",
+        "verification": "Re-run all module tests and graphify update . to ensure no regressions or circular dependencies."
+      }
+    },
+    "verification_gates": {
+      "GATE_01": {
+        "id": "Gate 1",
+        "name": "Model & Contract Integrity Gate",
+        "phase_boundary": "Phase 1 -> Phase 2 (Wave 1 Complete)",
+        "governing_principles": [
+          "Principle I: Clean MVVM & Type Safety",
+          "Principle V: English Technical Documentation",
+          "Principle VII: Zero Hardcoded Strings"
+        ],
+        "verification_commands": [
+          "dotnet restore Zenix.sln",
+          "dotnet build Zenix/Zenix.csproj -c Debug --no-restore",
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj --filter \"Category=Models|Category=Contracts\""
+        ],
+        "pass_fail_thresholds": {
+          "compilation_errors": 0,
+          "compiler_warnings": 0,
+          "ui_types_in_core_models": 0,
+          "xml_doc_coverage_percentage": 100,
+          "test_pass_rate_percentage": 100
+        },
+        "exit_criteria": "Project builds cleanly with zero warnings as errors. All records, enums, DTOs, and interfaces strictly compile. Zero references to Microsoft.UI.Xaml.* in Core assembly."
+      },
+      "GATE_02A_AND_02B": {
+        "id": "Gate 2A & 2B",
+        "name": "Storage & Cryptography Integrity Gate",
+        "phase_boundary": "Phase 2 & 3 -> Phase 4 (Wave 2 Complete)",
+        "governing_principles": [
+          "Principle III: Secure Database & Credential Protection",
+          "Principle IV: High Performance & Thread Stewardship"
+        ],
+        "verification_commands": [
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj --filter \"Category=Storage\"",
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj --filter \"Category=Crypto\""
+        ],
+        "pass_fail_thresholds": {
+          "storage_tests_pass_rate": 100,
+          "crypto_tests_pass_rate": 100,
+          "pagination_50_msg_latency_ms": 1.5,
+          "safety_number_calc_latency_ms": 2.0,
+          "plaintext_credentials_stored": 0,
+          "double_ratchet_steps_verified": 100
+        },
+        "exit_criteria": "WAL journal mode active in SQLite. Repositories handle pagination in <= 1.5ms. Credentials encrypted via DPAPI/AES-GCM at rest. AES-CBC zcid hex matches zalo-swift-re test vectors. Constant-time HMAC comparison passes."
+      },
+      "GATE_03": {
+        "id": "Gate 3",
+        "name": "Protocol & Auth Verification Gate",
+        "phase_boundary": "Phase 4 -> Phase 5 (Wave 3 Complete)",
+        "governing_principles": [
+          "Principle IV: High Performance & Async Stewardship",
+          "Principle X: Zero Patchwork Discipline"
+        ],
+        "verification_commands": [
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj --filter \"Category=Network|Category=Auth\""
+        ],
+        "pass_fail_thresholds": {
+          "header_slice_heap_allocation_bytes": 0,
+          "network_auth_tests_pass_rate": 100,
+          "qr2_fallback_handling_success": true,
+          "doh_fallback_resolution_success": true
+        },
+        "exit_criteria": "Zero heap allocations during 4-byte WebSocket header slicing. Outbound HTTP requests carry exact Chromium 108 wire fingerprints with Origin/Referer stripped. QR state machine transitions properly, and error -20 triggers QR2 seamlessly."
+      },
+      "GATE_04": {
+        "id": "Gate 4",
+        "name": "Domain Service Verification Gate",
+        "phase_boundary": "Phase 5 -> Phase 6 (Wave 4 Complete)",
+        "governing_principles": [
+          "Principle I: Clean MVVM",
+          "Principle IV: Thread Stewardship",
+          "Principle X: Zero Patchwork Discipline"
+        ],
+        "verification_commands": [
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj --filter \"Category=Services\""
+        ],
+        "pass_fail_thresholds": {
+          "services_test_pass_rate": 100,
+          "message_delivery_states_verified": [
+            "10 (Sending)",
+            "1 (Sent)",
+            "2 (Delivered)",
+            "3 (Seen)"
+          ],
+          "media_download_concurrency_max": 3,
+          "soft_delete_undo_window_seconds": [
+            5,
+            30
+          ]
+        },
+        "exit_criteria": "Message delivery pipeline progresses reliably through all delivery stages. Mention offsets strictly align. Recall mutates kind to .recalled. Soft-delete undo timer cancels deletion correctly. Media downloads throttle to max 3 concurrent requests. Master ZaloClient coordinates clean lifecycle."
+      },
+      "GATE_05": {
+        "id": "Gate 5",
+        "name": "Clean MVVM UI-Agnostic ViewModel Gate",
+        "phase_boundary": "Phase 6 -> Phase 7 (Wave 5 Complete)",
+        "governing_principles": [
+          "Principle I: Clean MVVM & Type Safety",
+          "Principle IV: Thread Stewardship (DispatcherQueue)"
+        ],
+        "verification_commands": [
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj --filter \"Category=MvvmCompliance\""
+        ],
+        "pass_fail_thresholds": {
+          "ui_types_in_viewmodels": 0,
+          "dispatcher_queue_marshalled_updates": 100,
+          "viewmodel_test_pass_rate": 100
+        },
+        "exit_criteria": "Roslyn AST code scanner proves 0 references to Microsoft.UI.Xaml.* in ViewModels/Zalo/. All commands implement IRelayCommand. All properties notify property changes. Dialogs and file pickers abstracted behind IDialogService and IFilePickerService."
+      },
+      "GATE_06": {
+        "id": "Gate 6",
+        "name": "Zero Code-Behind & XAML Compiled Binding Gate",
+        "phase_boundary": "Phase 7 -> Phase 8 (Wave 6 & 7 Complete)",
+        "governing_principles": [
+          "Principle I: Zero Code-Behind UI Manipulation & Compiled Binding",
+          "Principle VII: Zero Hardcoded Strings & Dynamic i18n"
+        ],
+        "verification_commands": [
+          "dotnet build Zenix/Zenix.csproj -c Debug",
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj --filter \"Category=XamlCompliance\""
+        ],
+        "pass_fail_thresholds": {
+          "compiled_xbind_coverage_percentage": 100,
+          "code_behind_dom_manipulations": 0,
+          "raw_unlocalized_xaml_literals": 0,
+          "xaml_compilation_errors": 0
+        },
+        "exit_criteria": "100% {x:Bind} compiled data binding verified. Code-behind files contain only InitializeComponent(). Zero raw string literals in XAML headers/content/placeholders. All 14 message payload DataTemplates compile and resolve cleanly via MessageBubbleTemplateSelector."
+      },
+      "GATE_07": {
+        "id": "Gate 7",
+        "name": "Production-Ready Convergence Gate",
+        "phase_boundary": "Phase 8 Release Final (Wave 8 Complete)",
+        "governing_principles": [
+          "Principle II: Modern Fluent UI / UX Standards",
+          "Principle VIII: Agent Desktop Automation & Visual Verification Gate",
+          "Principle IX: Deterministic Code Knowledge Graph (Graphify)",
+          "Principle X: Zero Patchwork & CRLF Discipline"
+        ],
+        "verification_commands": [
+          "dotnet build Zenix.sln -c Release",
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj -c Release --logger \"console;verbosity=normal\"",
+          "dotnet test tests/Zenix.Tests/Zenix.Tests.csproj --filter \"FullyQualifiedName~LocalizationVerificationTests\"",
+          "python .agents/skills/agent-desktop/scripts/bridge.py launch-app \"d:\\DEV\\WinUI\\Zenix\\Zenix\\bin\\Debug\\net10.0-windows10.0.26100.0\\Zenix.exe\"",
+          "python .agents/skills/agent-desktop/scripts/bridge.py snapshot -i --compact --app Zenix",
+          "python .agents/skills/agent-desktop/scripts/bridge.py screenshot --app Zenix --output \".agents/artifacts/zalo_live_ui_verification.png\"",
+          "graphify update .",
+          "graphify diagnose"
+        ],
+        "pass_fail_thresholds": {
+          "unit_integration_test_pass_rate": 100,
+          "release_build_errors": 0,
+          "localization_key_symmetry_percentage": 100,
+          "live_app_crash_count": 0,
+          "screenshot_artifact_exists": true,
+          "circular_dependencies_reported": 0,
+          "crlf_line_endings_compliance_percentage": 100
+        },
+        "exit_criteria": "Clean Release build. 100% test pass rate across all fixtures. Tri-lingual localization key parity confirmed with zero BOM. Live application runs stably in WinSta0\\default. High-resolution screenshot captured and verified. Knowledge graph confirms zero circular dependencies. 100% Windows CRLF line endings."
+      }
+    }
+  },
+  "agent_desktop_automation": {
+    "framework": "agent-desktop CLI (Vercel Labs) via WinSta0\\default bridge",
+    "script_bridge": ".agents/skills/agent-desktop/scripts/bridge.py",
+    "execution_mode": "Non-intrusive headless UIA navigation with single live process lifecycle",
+    "guidelines_document": ".agents/skills/agent-desktop/GUIDE.md",
+    "launch_procedure": {
+      "command": "python .agents/skills/agent-desktop/scripts/bridge.py launch-app \"d:\\DEV\\WinUI\\Zenix\\Zenix\\bin\\Debug\\net10.0-windows10.0.26100.0\\Zenix.exe\"",
+      "isolation_mechanism": "WMI Win32_Process.Create escaping terminal sandbox Job Object into interactive desktop",
+      "wait_command": "python .agents/skills/agent-desktop/scripts/bridge.py wait --timeout 8000"
+    },
+    "test_scenario_sequence": [
+      {
+        "step": 1,
+        "name": "Observe Login View",
+        "action": "snapshot",
+        "command": "python .agents/skills/agent-desktop/scripts/bridge.py snapshot -i --compact --app Zenix",
+        "expected_elements": [
+          "Window: Zenix",
+          "Image (QR Code)",
+          "Text (Countdown/Status)",
+          "Button (Switch Account)"
+        ]
+      },
+      {
+        "step": 2,
+        "name": "Refresh QR Code",
+        "action": "click",
+        "command": "python .agents/skills/agent-desktop/scripts/bridge.py click '<ref_refresh_qr>'",
+        "expected_result": "QR code refreshed, countdown timer reset in snapshot"
+      },
+      {
+        "step": 3,
+        "name": "Transition to Active Chat Shell",
+        "action": "navigate_and_snapshot",
+        "command": "python .agents/skills/agent-desktop/scripts/bridge.py snapshot -i --compact --app Zenix",
+        "expected_elements": [
+          "List (Conversations)",
+          "ListItem (Thread Item)",
+          "Group (Chat Viewport)"
+        ]
+      },
+      {
+        "step": 4,
+        "name": "Select Conversation Thread",
+        "action": "click",
+        "command": "python .agents/skills/agent-desktop/scripts/bridge.py click '<ref_conv_item>'",
+        "expected_result": "Active chat header updates, message bubble list populated via virtualized ListView"
+      },
+      {
+        "step": 5,
+        "name": "Compose and Send Message",
+        "action": "type_and_send",
+        "command": "python .agents/skills/agent-desktop/scripts/bridge.py set-value '<ref_composer>' \"Xin chào Zenix .NET 10 WinUI 3!\"; python .agents/skills/agent-desktop/scripts/bridge.py click '<ref_send_btn>'",
+        "expected_result": "Message bubble appears in status Sending (10) or Sent (1)"
+      },
+      {
+        "step": 6,
+        "name": "Visual Acceptance Screenshot",
+        "action": "screenshot",
+        "command": "python .agents/skills/agent-desktop/scripts/bridge.py screenshot --app Zenix --output \".agents/artifacts/zalo_live_ui_verification.png\"",
+        "expected_artifact": ".agents/artifacts/zalo_live_ui_verification.png",
+        "visual_criteria": [
+          "Mica backdrop rendered",
+          "Fluent typography and spacing",
+          "Localized labels in active UI language",
+          "Zero visual glitches"
+        ]
+      }
+    ]
+  }
+}

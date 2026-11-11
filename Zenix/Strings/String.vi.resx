@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Shell_Title" xml:space="preserve">
+    <value>Zenix</value>
+  </data>
+  <data name="Shell_Nav_Chats" xml:space="preserve">
+    <value>Tin nhắn</value>
+  </data>
+  <data name="Shell_Nav_Contacts" xml:space="preserve">
+    <value>Danh bạ</value>
+  </data>
+  <data name="Shell_Nav_Settings" xml:space="preserve">
+    <value>Cài đặt</value>
+  </data>
+  <data name="Login_Title" xml:space="preserve">
+    <value>Đăng nhập Zenix</value>
+  </data>
+  <data name="Login_Subtitle" xml:space="preserve">
+    <value>Quét mã QR bằng ứng dụng trên điện thoại để đăng nhập</value>
+  </data>
+  <data name="Login_ScanInstruction" xml:space="preserve">
+    <value>Mở ứng dụng trên điện thoại &gt; Quét mã QR</value>
+  </data>
+  <data name="Login_WaitingScan" xml:space="preserve">
+    <value>Đang chờ quét...</value>
+  </data>
+  <data name="Login_WaitingConfirm" xml:space="preserve">
+    <value>Đã quét! Vui lòng xác nhận trên điện thoại.</value>
+  </data>
+  <data name="Login_ConfirmPrompt" xml:space="preserve">
+    <value>Nhấn Đăng nhập trên điện thoại để tiếp tục</value>
+  </data>
+  <data name="Login_SecondQrRequired" xml:space="preserve">
+    <value>Yêu cầu xác nhận liên kết thiết bị</value>
+  </data>
+  <data name="Login_SecondQrInstruction" xml:space="preserve">
+    <value>Vui lòng quét mã QR thứ hai này để xác thực thiết bị mới</value>
+  </data>
+  <data name="Login_Expired" xml:space="preserve">
+    <value>Mã QR đã hết hạn</value>
+  </data>
+  <data name="Login_RefreshButton" xml:space="preserve">
+    <value>Lấy mã mới</value>
+  </data>
+  <data name="Login_SwitchAccount" xml:space="preserve">
+    <value>Chuyển tài khoản</value>
+  </data>
+  <data name="Login_KickedOutNotice" xml:space="preserve">
+    <value>Phiên đăng nhập đã kết thúc do bạn đăng nhập từ nơi khác</value>
+  </data>
+  <data name="Conversation_SearchPlaceholder" xml:space="preserve">
+    <value>Tìm kiếm hội thoại và tin nhắn...</value>
+  </data>
+  <data name="Conversation_EmptyList" xml:space="preserve">
+    <value>Chưa có cuộc trò chuyện nào</value>
+  </data>
+  <data name="Conversation_Pin" xml:space="preserve">
+    <value>Ghim lên đầu</value>
+  </data>
+  <data name="Conversation_Unpin" xml:space="preserve">
+    <value>Bỏ ghim</value>
+  </data>
+  <data name="Conversation_Mute" xml:space="preserve">
+    <value>Tắt thông báo</value>
+  </data>
+  <data name="Conversation_Unmute" xml:space="preserve">
+    <value>Bật thông báo</value>
+  </data>
+  <data name="Conversation_Delete" xml:space="preserve">
+    <value>Xóa cuộc trò chuyện</value>
+  </data>
+  <data name="Conversation_MarkAsRead" xml:space="preserve">
+    <value>Đánh dấu đã đọc</value>
+  </data>
+  <data name="Conversation_Archive" xml:space="preserve">
+    <value>Lưu trữ</value>
+  </data>
+  <data name="Chat_ComposerPlaceholder" xml:space="preserve">
+    <value>Nhập tin nhắn...</value>
+  </data>
+  <data name="Chat_SendButton" xml:space="preserve">
+    <value>Gửi</value>
+  </data>
+  <data name="Chat_AttachFileTooltip" xml:space="preserve">
+    <value>Đính kèm tệp hoặc ảnh</value>
+  </data>
+  <data name="Chat_ReplyingTo" xml:space="preserve">
+    <value>Đang trả lời</value>
+  </data>
+  <data name="Chat_CancelReply" xml:space="preserve">
+    <value>Hủy trả lời</value>
+  </data>
+  <data name="Chat_RecallMessage" xml:space="preserve">
+    <value>Thu hồi tin nhắn</value>
+  </data>
+  <data name="Chat_DeleteMessage" xml:space="preserve">
+    <value>Xóa tin nhắn</value>
+  </data>
+  <data name="Chat_UndoDelete" xml:space="preserve">
+    <value>Hoàn tác</value>
+  </data>
+  <data name="Chat_UndoCountdown" xml:space="preserve">
+    <value>Đã xóa tin nhắn. Hoàn tác ({0}s)</value>
+  </data>
+  <data name="Chat_RecalledNotice" xml:space="preserve">
+    <value>Tin nhắn đã được thu hồi</value>
+  </data>
+  <data name="Chat_LoadingHistory" xml:space="preserve">
+    <value>Đang tải tin nhắn cũ hơn...</value>
+  </data>
+  <data name="Chat_SelectConversationPrompt" xml:space="preserve">
+    <value>Chọn một cuộc trò chuyện để bắt đầu nhắn tin</value>
+  </data>
+  <data name="Status_Sending" xml:space="preserve">
+    <value>Đang gửi...</value>
+  </data>
+  <data name="Status_Sent" xml:space="preserve">
+    <value>Đã gửi</value>
+  </data>
+  <data name="Status_Delivered" xml:space="preserve">
+    <value>Đã nhận</value>
+  </data>
+  <data name="Status_Seen" xml:space="preserve">
+    <value>Đã xem</value>
+  </data>
+  <data name="Status_Failed" xml:space="preserve">
+    <value>Gửi thất bại</value>
+  </data>
+  <data name="Media_Uploading" xml:space="preserve">
+    <value>Đang tải lên...</value>
+  </data>
+  <data name="Media_Downloading" xml:space="preserve">
+    <value>Đang tải xuống...</value>
+  </data>
+  <data name="Media_DownloadComplete" xml:space="preserve">
+    <value>Tải xuống hoàn tất</value>
+  </data>
+  <data name="Media_UploadFailed" xml:space="preserve">
+    <value>Tải lên thất bại</value>
+  </data>
+  <data name="Media_ExtractPoster" xml:space="preserve">
+    <value>Đang trích xuất ảnh xem trước...</value>
+  </data>
+  <data name="Dialog_Ok" xml:space="preserve">
+    <value>Đồng ý</value>
+  </data>
+  <data name="Dialog_Cancel" xml:space="preserve">
+    <value>Hủy</value>
+  </data>
+  <data name="Dialog_Yes" xml:space="preserve">
+    <value>Có</value>
+  </data>
+  <data name="Dialog_No" xml:space="preserve">
+    <value>Không</value>
+  </data>
+  <data name="Dialog_DeleteConfirmTitle" xml:space="preserve">
+    <value>Xóa cuộc trò chuyện?</value>
+  </data>
+  <data name="Dialog_DeleteConfirmMessage" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa cuộc trò chuyện này? Hành động này không thể hoàn tác.</value>
+  </data>
+  <data name="Dialog_LogoutConfirmTitle" xml:space="preserve">
+    <value>Đăng xuất?</value>
+  </data>
+  <data name="Dialog_LogoutConfirmMessage" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này?</value>
+  </data>
+  <data name="FilePicker_PhotoFilter" xml:space="preserve">
+    <value>Hình ảnh (*.jpg;*.jpeg;*.png;*.webp;*.gif)</value>
+  </data>
+  <data name="FilePicker_AllFilesFilter" xml:space="preserve">
+    <value>Tất cả tệp (*.*)</value>
+  </data>
+  <data name="FilePicker_SelectFileTitle" xml:space="preserve">
+    <value>Chọn tệp cần gửi</value>
+  </data>
+  <data name="FilePicker_SaveFileTitle" xml:space="preserve">
+    <value>Lưu tệp dưới dạng</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Cài đặt</value>
+  </data>
+  <data name="Settings_Appearance" xml:space="preserve">
+    <value>Giao diện</value>
+  </data>
+  <data name="Settings_Theme_Dark" xml:space="preserve">
+    <value>Tối</value>
+  </data>
+  <data name="Settings_Theme_Light" xml:space="preserve">
+    <value>Sáng</value>
+  </data>
+  <data name="Settings_Theme_System" xml:space="preserve">
+    <value>Hệ thống</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Ngôn ngữ</value>
+  </data>
+  <data name="Settings_Language_En" xml:space="preserve">
+    <value>Tiếng Anh</value>
+  </data>
+  <data name="Settings_Language_Vi" xml:space="preserve">
+    <value>Tiếng Việt</value>
+  </data>
+  <data name="Settings_Security" xml:space="preserve">
+    <value>Bảo mật &amp; Quyền riêng tư</value>
+  </data>
+  <data name="Settings_SafetyNumber" xml:space="preserve">
+    <value>Mã an toàn xác thực</value>
+  </data>
+  <data name="Settings_StorageCache" xml:space="preserve">
+    <value>Lưu trữ &amp; Dữ liệu đệm</value>
+  </data>
+  <data name="Settings_ClearCache" xml:space="preserve">
+    <value>Xóa dữ liệu đệm</value>
+  </data>
+  <data name="Settings_Logout" xml:space="preserve">
+    <value>Đăng xuất</value>
+  </data>
+</root>

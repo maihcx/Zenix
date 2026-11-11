@@ -1,4 +1,4 @@
-﻿# Bug Fix Report: [SLUG]
+# Bug Fix Report: [SLUG]
 
 > **Status**: FIXED & VERIFIED
 > **Resolving Agent**: [ACTOR]

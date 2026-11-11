@@ -1,4 +1,4 @@
-﻿# Bug Assessment: [SLUG]
+# Bug Assessment: [SLUG]
 
 > **Status**: ASSESSED
 > **Triage Agent**: [ACTOR]
